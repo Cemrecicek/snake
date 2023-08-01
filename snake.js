@@ -11,8 +11,10 @@ var context
 var snakeX = blockSize * 10
 var snakeY = blockSize * 10
 
-velocityX=0
-velocityY=0
+var velocityX=0
+var velocityY=0
+
+
 
 
 
@@ -42,6 +44,12 @@ function update() {
     context.fillRect(elmaX, elmaY, blockSize, blockSize)
     
 
+    //Yılanın elmayı yediğini kontrol edelim
+
+    if (snakeX==elmaX &&snakeY==elmaY){
+        placeFood()
+    }
+
 
     context.fillStyle = "green"
     snakeX+=velocityX*blockSize
@@ -67,19 +75,19 @@ window.onload = function () {
 }
 
 function changeDirection(e){
-    if (e.code=="ArrowUp"){
+    if (e.code=="ArrowUp" && velocityY!=1){
         velocityX=0
         velocityY=-1
     }
-    else if(e.code=="ArrowDown"){
+    else if(e.code=="ArrowDown" && velocityY!=-1){
         velocityX=0
         velocityY=1
     }
-    else if(e.code=="ArrowLeft"){
+    else if(e.code=="ArrowLeft" && velocityX!=1){
         velocityX=-1
         velocityY=0
     }
-    else if(e.code=="ArrowRight"){
+    else if(e.code=="ArrowRight" && velocityX!=-1){
         velocityX=1
         velocityY=0
     }
