@@ -14,7 +14,7 @@ var snakeY = blockSize * 10
 var velocityX=0
 var velocityY=0
 
-
+var snakeBody=[]
 
 
 
@@ -47,14 +47,29 @@ function update() {
     //Yılanın elmayı yediğini kontrol edelim
 
     if (snakeX==elmaX &&snakeY==elmaY){
+        snakeBody.push([elmaX,elmaY])
         placeFood()
     }
+    
+    for (let i=snakeBody.length-1;i>0;i--){
+       snakeBody[i]=snakeBody[i-1]
+   }
+    
+    if(snakeBody.length){
+        snakeBody[0]=[snakeX,snakeY]
+    }
 
-
-    context.fillStyle = "green"
+    context.fillStyle = "chartreuse"
     snakeX+=velocityX*blockSize
     snakeY+=velocityY*blockSize
     context.fillRect(snakeX, snakeY, blockSize, blockSize)
+    
+    for (let i=0; i<snakeBody.length;i++){
+            context.fillRect(snakeBody[i][0], snakeBody[i][1],blockSize,blockSize)
+        }
+
+
+
     
 
     
