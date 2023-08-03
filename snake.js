@@ -6,6 +6,7 @@ var cols = 21
 var board
 var context
 
+
 //yılanın başlangıcı
 
 var snakeX = blockSize * 10
@@ -16,6 +17,7 @@ var velocityY = 0
 
 var snakeBody = []
 
+var count = 0
 
 
 //elma
@@ -24,7 +26,7 @@ var elmaX
 var elmaY
 
 //oyun bitim kontrol fonksiyonu
-var gameOver=false
+var gameOver = false
 
 //elmanın koordinatları için fonksiyon
 function placeFood() {
@@ -38,7 +40,7 @@ function placeFood() {
 function update() {
 
     // oyunun bitme durumunu kontrol edelim
-    if (gameOver){
+    if (gameOver) {
         return
     }
 
@@ -51,10 +53,13 @@ function update() {
 
 
     //Yılanın elmayı yediğini kontrol edelim
-
     if (snakeX == elmaX && snakeY == elmaY) {
         snakeBody.push([elmaX, elmaY])
         placeFood()
+        count++
+        var h2Element = document.querySelector('.skor');
+        h2Element.textContent = 'Skor: ' + count;
+
     }
 
     for (let i = snakeBody.length - 1; i > 0; i--) {
@@ -77,21 +82,38 @@ function update() {
 
 
     //oyunun sonlanma durumları
-    if (snakeX < 0 || snakeX > cols * blockSize || snakeY<0 || snakeY>blockSize*rows){
-        gameOver= true
-    alert("Oyununuz bitti") 
+    if (snakeX < 0 || snakeX > cols * blockSize || snakeY < 0 || snakeY > blockSize * rows) {
+        gameOver = true
+        alert("Oyununuz bitti")
     }
 
-    for (let i=0;i< snakeBody.length;i++){
-        if(snakeX== snakeBody[i][0] && snakeY==snakeBody[i][1]){
-            gameOver=true
+    for (let i = 0; i < snakeBody.length; i++) {
+        if (snakeX == snakeBody[i][0] && snakeY == snakeBody[i][1]) {
+            gameOver = true
             alert("oyununuz bitti")
         }
     }
-    
 
-    
+
+
 }
+// Oyunu başlatan fonksiyon
+function startGame() {
+    // Oyunun durumunu sıfırla
+    gameOver = false;
+    snakeX = blockSize * 10;
+    snakeY = blockSize * 10;
+    velocityX = 0;
+    velocityY = 0;
+    snakeBody = [];
+    count = 0;
+    placeFood();
+
+    // Skor alanını sıfırla
+    var h2Element = document.querySelector(".skor");
+    h2Element.textContent = "Skor: " + count;
+}
+
 
 //foksiyonumuz
 
@@ -103,7 +125,8 @@ window.onload = function () {
 
     placeFood()
     document.addEventListener("keyup", changeDirection)
-    // update()
+    var baslatButton = document.querySelector(".baslat");
+    baslatButton.addEventListener("click", startGame);
     setInterval(update, 1000 / 10)
 }
 
