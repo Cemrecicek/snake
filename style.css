@@ -142,3 +142,53 @@ h1 {
     display: none;
   }
 }
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 999;
+}
+
+.hidden {
+  display: none;
+}
+
+.modal-content {
+  width: min(90vw, 360px);
+  background: #f5f5f5;
+  color: #111;
+  border: 3px solid #111;
+  padding: 24px 18px;
+  text-align: center;
+  font-family: "Courier New", Courier, monospace;
+}
+
+.modal-content h2 {
+  margin: 0 0 12px;
+  font-size: 28px;
+}
+
+.modal-content p {
+  margin: 8px 0;
+  font-size: 18px;
+}
+
+.modal-restart {
+  margin-top: 16px;
+  width: min(70vw, 200px);
+  height: 44px;
+  font-size: 16px;
+  font-family: "Courier New", Courier, monospace;
+  background-color: rgb(204, 205, 205);
+  border: 2px solid #111;
+  cursor: pointer;
+}
+
+.modal-restart:active {
+  transform: scale(0.96);
+}

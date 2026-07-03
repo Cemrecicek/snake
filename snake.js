@@ -16,6 +16,7 @@ var velocityY = 0;
 var snakeBody = [];
 
 var count = 0;
+var highScore = Number(localStorage.getItem("snakeHighScore")) || 0;
 
 //elma
 
@@ -29,6 +30,31 @@ var gameOver = false;
 function placeFood() {
   elmaX = Math.floor(Math.random() * cols) * blockSize;
   elmaY = Math.floor(Math.random() * rows) * blockSize;
+}
+
+//Highscore
+function updateScoreBoard() {
+  var skorElement = document.querySelector(".skor");
+  var highScoreElement = document.querySelector(".enYuksekSkor");
+
+  skorElement.textContent = "Skor: " + count;
+  highScoreElement.textContent = "En Yüksek Skor: " + highScore;
+}
+
+function showGameOverModal() {
+  var modal = document.querySelector(".modal");
+  var modalScore = document.querySelector(".modal-score");
+  var modalHighScore = document.querySelector(".modal-high-score");
+
+  modalScore.textContent = "Skor: " + count;
+  modalHighScore.textContent = "En Yüksek Skor: " + highScore;
+
+  modal.classList.remove("hidden");
+}
+
+function hideGameOverModal() {
+  var modal = document.querySelector(".modal");
+  modal.classList.add("hidden");
 }
 
 //içerikleri oluşturalım
@@ -50,10 +76,14 @@ function update() {
     snakeBody.push([elmaX, elmaY]);
     placeFood();
     count++;
-    var h2Element = document.querySelector(".skor");
-    h2Element.textContent = "Skor: " + count;
-  }
 
+    if (count > highScore) {
+      highScore = count;
+      localStorage.setItem("snakeHighScore", highScore);
+    }
+
+    updateScoreBoard();
+  }
   for (let i = snakeBody.length - 1; i > 0; i--) {
     snakeBody[i] = snakeBody[i - 1];
   }
@@ -79,18 +109,21 @@ function update() {
     snakeY >= rows * blockSize
   ) {
     gameOver = true;
-    alert("Oyununuz bitti");
+    showGameOverModal();
   }
 
   for (let i = 0; i < snakeBody.length; i++) {
     if (snakeX == snakeBody[i][0] && snakeY == snakeBody[i][1]) {
       gameOver = true;
-      alert("oyununuz bitti");
+      showGameOverModal();
     }
   }
 }
+
 // Oyunu başlatan fonksiyon
 function startGame() {
+  hideGameOverModal();
+
   // Oyunun durumunu sıfırla
   gameOver = false;
   snakeX = blockSize * 10;
@@ -99,11 +132,9 @@ function startGame() {
   velocityY = 0;
   snakeBody = [];
   count = 0;
-  placeFood();
 
-  // Skor alanını sıfırla
-  var h2Element = document.querySelector(".skor");
-  h2Element.textContent = "Skor: " + count;
+  placeFood();
+  updateScoreBoard();
 }
 
 //foksiyonumuz
@@ -115,9 +146,16 @@ window.onload = function () {
   context = board.getContext("2d");
 
   placeFood();
-  document.addEventListener("keyup", changeDirection);
+  updateScoreBoard();
+
+  document.addEventListener("keydown", changeDirection);
+
   var baslatButton = document.querySelector(".baslat");
   baslatButton.addEventListener("click", startGame);
+
+  var modalRestartButton = document.querySelector(".modal-restart");
+  modalRestartButton.addEventListener("click", startGame);
+
   var controlButtons = document.querySelectorAll(".control-btn");
 
   controlButtons.forEach(function (button) {
@@ -126,22 +164,22 @@ window.onload = function () {
     });
   });
 
-  controlButtons.forEach(function (button) {
-    button.addEventListener("click", function () {
-      setDirection(button.dataset.direction);
-    });
-  });
   setInterval(update, 1000 / 10);
 };
 
 function changeDirection(e) {
-  if (e.code === "ArrowUp") {
+  if (e.code === "KeyR") {
+    startGame();
+    return;
+  }
+
+  if (e.code === "ArrowUp" || e.key === "w" || e.key === "W") {
     setDirection("up");
-  } else if (e.code === "ArrowDown") {
+  } else if (e.code === "ArrowDown" || e.key === "s" || e.key === "S") {
     setDirection("down");
-  } else if (e.code === "ArrowLeft") {
+  } else if (e.code === "ArrowLeft" || e.key === "a" || e.key === "A") {
     setDirection("left");
-  } else if (e.code === "ArrowRight") {
+  } else if (e.code === "ArrowRight" || e.key === "d" || e.key === "D") {
     setDirection("right");
   }
 }
