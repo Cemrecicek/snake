@@ -1,3 +1,9 @@
+var SUPABASE_URL = "https://isdvdveuexfmvczaimqv.supabase.co";
+var SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlzZHZkdmV1ZXhmbXZjemFpbXF2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyODk3ODUsImV4cCI6MjA5ODg2NTc4NX0.jMIoFy2aoXlN4YIDFxHZhS-id5NHntDOQ8VDaPXFeBw";
+
+var supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
 //board
 var blockSize = 25;
 var rows = 21;
@@ -16,7 +22,7 @@ var velocityY = 0;
 var snakeBody = [];
 
 var count = 0;
-var highScore = Number(localStorage.getItem("snakeHighScore")) || 0;
+var highScore = 0;
 
 //elma
 
@@ -41,15 +47,96 @@ function updateScoreBoard() {
   highScoreElement.textContent = "En Yüksek Skor: " + highScore;
 }
 
+async function loadGlobalScores() {
+  var leaderboardList = document.querySelector(".leaderboard-list");
+
+  leaderboardList.innerHTML = "<li>Yükleniyor...</li>";
+
+  var result = await supabaseClient
+    .from("scores")
+    .select("player_name, score")
+    .order("score", { ascending: false })
+    .limit(5);
+
+  if (result.error) {
+    leaderboardList.innerHTML = "<li>Skorlar yüklenemedi.</li>";
+    console.log(result.error);
+    updateScoreBoard();
+    return;
+  }
+
+  leaderboardList.innerHTML = "";
+
+  if (result.data.length === 0) {
+    leaderboardList.innerHTML = "<li>Henüz skor yok.</li>";
+    updateScoreBoard();
+    return;
+  }
+
+  highScore = result.data[0].score;
+  updateScoreBoard();
+
+  result.data.forEach(function (item) {
+    var li = document.createElement("li");
+    li.textContent = item.player_name + " - " + item.score;
+    leaderboardList.appendChild(li);
+  });
+}
+
+async function saveGlobalScore() {
+  var playerNameInput = document.querySelector(".player-name");
+  var saveMessage = document.querySelector(".save-message");
+  var saveScoreButton = document.querySelector(".save-score");
+
+  var playerName = playerNameInput.value.trim();
+
+  if (playerName === "") {
+    saveMessage.textContent = "Lütfen adınızı yazın.";
+    return;
+  }
+
+  saveMessage.textContent = "Kaydediliyor...";
+  saveScoreButton.disabled = true;
+
+  var result = await supabaseClient.from("scores").insert({
+    player_name: playerName,
+    score: count,
+  });
+
+  if (result.error) {
+    saveMessage.textContent = "Skor kaydedilemedi.";
+    saveScoreButton.disabled = false;
+    console.log(result.error);
+    return;
+  }
+
+  saveMessage.textContent = "Skor kaydedildi.";
+  playerNameInput.value = "";
+
+  loadGlobalScores();
+  setTimeout(function () {
+    hideGameOverModal();
+  }, 700);
+}
+
 function showGameOverModal() {
   var modal = document.querySelector(".modal");
   var modalScore = document.querySelector(".modal-score");
   var modalHighScore = document.querySelector(".modal-high-score");
+  var playerNameInput = document.querySelector(".player-name");
+  var saveMessage = document.querySelector(".save-message");
+  var saveScoreButton = document.querySelector(".save-score");
+  saveScoreButton.disabled = false;
 
   modalScore.textContent = "Skor: " + count;
   modalHighScore.textContent = "En Yüksek Skor: " + highScore;
+  saveMessage.textContent = "";
 
   modal.classList.remove("hidden");
+
+  setTimeout(function () {
+    playerNameInput.focus();
+  }, 100);
 }
 
 function hideGameOverModal() {
@@ -79,7 +166,6 @@ function update() {
 
     if (count > highScore) {
       highScore = count;
-      localStorage.setItem("snakeHighScore", highScore);
     }
 
     updateScoreBoard();
@@ -110,12 +196,14 @@ function update() {
   ) {
     gameOver = true;
     showGameOverModal();
+    return;
   }
 
   for (let i = 0; i < snakeBody.length; i++) {
     if (snakeX == snakeBody[i][0] && snakeY == snakeBody[i][1]) {
       gameOver = true;
       showGameOverModal();
+      return;
     }
   }
 }
@@ -156,6 +244,21 @@ window.onload = function () {
   var modalRestartButton = document.querySelector(".modal-restart");
   modalRestartButton.addEventListener("click", startGame);
 
+  var saveScoreButton = document.querySelector(".save-score");
+  saveScoreButton.addEventListener("click", saveGlobalScore);
+
+  var playerNameInput = document.querySelector(".player-name");
+
+  playerNameInput.addEventListener("keydown", function (e) {
+    e.stopPropagation();
+
+    if (e.key === "Enter") {
+      saveGlobalScore();
+    }
+  });
+
+  loadGlobalScores();
+
   var controlButtons = document.querySelectorAll(".control-btn");
 
   controlButtons.forEach(function (button) {
@@ -168,6 +271,16 @@ window.onload = function () {
 };
 
 function changeDirection(e) {
+  var activeElement = document.activeElement;
+
+  if (
+    activeElement &&
+    activeElement.classList &&
+    activeElement.classList.contains("player-name")
+  ) {
+    return;
+  }
+
   if (e.code === "KeyR") {
     startGame();
     return;

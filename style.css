@@ -8,6 +8,7 @@ body {
   padding: 0;
   width: 100%;
   min-height: 100%;
+  overflow: hidden;
 }
 
 body {
@@ -27,7 +28,7 @@ body {
 }
 
 h1 {
-  margin: 8px 0 4px;
+  margin: 4px 0 4px;
   font-size: 24px;
 }
 
@@ -49,7 +50,7 @@ h1 {
 }
 
 .skor {
-  margin: 10px 0 8px;
+  margin: 8px 0 8px;
   font-size: 16px;
 }
 
@@ -65,7 +66,7 @@ h1 {
 
 .controls {
   width: min(80vw, 220px);
-  margin-top: 12px;
+  margin-top: 10px;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 6px;
@@ -191,4 +192,70 @@ h1 {
 
 .modal-restart:active {
   transform: scale(0.96);
+}
+
+.leaderboard {
+  width: min(92vw, 360px);
+  margin-top: 10px;
+  padding: 10px;
+  border: 2px solid #111;
+  background: #fff;
+  max-height: 180px;
+  overflow: hidden;
+}
+
+.leaderboard h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.leaderboard {
+  width: min(92vw, 360px);
+  margin-top: 14px;
+  padding: 12px;
+  border: 2px solid #111;
+  background: #fff;
+}
+
+.leaderboard-list {
+  margin: 0;
+  padding-left: 40px;
+  text-align: left;
+  max-height: 100px;
+  overflow: hidden;
+  list-style-type: decimal;
+  list-style-position: outside;
+}
+
+.leaderboard-list li {
+  display: list-item;
+  margin: 4px 0;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.player-name {
+  width: min(70vw, 220px);
+  height: 38px;
+  margin-top: 12px;
+  padding: 8px;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 16px;
+  border: 2px solid #111;
+}
+
+.save-score {
+  margin-top: 10px;
+  width: min(70vw, 200px);
+  height: 42px;
+  font-size: 15px;
+  font-family: "Courier New", Courier, monospace;
+  background-color: rgb(204, 205, 205);
+  border: 2px solid #111;
+  cursor: pointer;
+}
+
+.save-message {
+  min-height: 20px;
+  font-size: 14px;
 }

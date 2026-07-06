@@ -30,16 +30,33 @@
         <button class="control-btn right" data-direction="right">▶</button>
       </div>
 
+      <section class="leaderboard">
+        <h2>Global Skorlar</h2>
+        <ol class="leaderboard-list"></ol>
+      </section>
+
       <div class="modal hidden">
         <div class="modal-content">
           <h2>Kaybettiniz</h2>
           <p class="modal-score">Skor: 0</p>
           <p class="modal-high-score">En Yüksek Skor: 0</p>
+
+          <input
+            class="player-name"
+            type="text"
+            maxlength="20"
+            placeholder="Adınız"
+          />
+
+          <button class="save-score">Skoru Kaydet</button>
           <button class="modal-restart">Tekrar Başla</button>
+
+          <p class="save-message"></p>
         </div>
       </div>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="./snake.js"></script>
 
     <script>
