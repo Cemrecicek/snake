@@ -32,6 +32,21 @@ var multiplayerWinnerText = document.querySelector(".multiplayer-winner-text");
 var multiplayerFinalScoreOne = document.querySelector(
   ".multiplayer-final-score-one",
 );
+
+var multiplayerSnakeColor =
+  localStorage.getItem("multiplayerSnakeColor") || "green";
+
+var multiplayerBoardTheme =
+  localStorage.getItem("multiplayerBoardTheme") || "dark";
+
+var multiplayerSnakeColorSelect = document.querySelector(
+  ".multiplayer-snake-color-select",
+);
+
+var multiplayerThemeSelect = document.querySelector(
+  ".multiplayer-theme-select",
+);
+
 var multiplayerFinalScoreTwo = document.querySelector(
   ".multiplayer-final-score-two",
 );
@@ -81,6 +96,28 @@ function showMultiplayerIntro() {
 
   multiplayerIntroModal.classList.remove("hidden");
 }
+
+function setupMultiplayerSelects() {
+  if (multiplayerSnakeColorSelect) {
+    multiplayerSnakeColorSelect.value = multiplayerSnakeColor;
+
+    multiplayerSnakeColorSelect.addEventListener("change", function () {
+      multiplayerSnakeColor = multiplayerSnakeColorSelect.value;
+      localStorage.setItem("multiplayerSnakeColor", multiplayerSnakeColor);
+    });
+  }
+
+  if (multiplayerThemeSelect) {
+    multiplayerThemeSelect.value = multiplayerBoardTheme;
+
+    multiplayerThemeSelect.addEventListener("change", function () {
+      multiplayerBoardTheme = multiplayerThemeSelect.value;
+      localStorage.setItem("multiplayerBoardTheme", multiplayerBoardTheme);
+    });
+  }
+}
+
+setupMultiplayerSelects();
 
 function updateMultiplayerControlSide(side) {
   var multiplayerGameArea = document.querySelector(".multiplayer-game-area");
@@ -154,7 +191,12 @@ function drawMultiplayerGame(gameState) {
   multiplayerBoard.width = gameState.cols * gameState.blockSize;
   multiplayerBoard.height = gameState.rows * gameState.blockSize;
 
-  multiplayerContext.fillStyle = "black";
+  var selectedTheme = gameState.boardTheme || {
+    background: "black",
+    food: "red",
+  };
+
+  multiplayerContext.fillStyle = selectedTheme.background;
   multiplayerContext.fillRect(
     0,
     0,
@@ -162,7 +204,7 @@ function drawMultiplayerGame(gameState) {
     multiplayerBoard.height,
   );
 
-  multiplayerContext.fillStyle = "red";
+  multiplayerContext.fillStyle = selectedTheme.food;
   multiplayerContext.fillRect(
     gameState.food.x * gameState.blockSize,
     gameState.food.y * gameState.blockSize,
@@ -218,6 +260,8 @@ createRoomButton.addEventListener("click", function () {
 
   socket.emit("createRoom", {
     playerName: playerName,
+    snakeColor: multiplayerSnakeColor,
+    boardTheme: multiplayerBoardTheme,
   });
 });
 
@@ -243,6 +287,7 @@ joinRoomButton.addEventListener("click", function () {
   socket.emit("joinRoom", {
     roomCode: roomCode,
     playerName: playerName,
+    snakeColor: multiplayerSnakeColor,
   });
 });
 
@@ -428,12 +473,38 @@ multiplayerPauseButton.addEventListener("click", function () {
 });
 
 socket.on("multiplayerPauseChanged", function (data) {
+  var multiplayerPauseModal = document.querySelector(
+    ".multiplayer-pause-modal",
+  );
+
   if (data.paused) {
     multiplayerPauseButton.textContent = "Devam";
+
+    if (multiplayerPauseModal) {
+      multiplayerPauseModal.classList.remove("hidden");
+    }
   } else {
     multiplayerPauseButton.textContent = "Pause";
+
+    if (multiplayerPauseModal) {
+      multiplayerPauseModal.classList.add("hidden");
+    }
   }
 });
+
+var multiplayerResumeButton = document.querySelector(".multiplayer-resume-btn");
+
+if (multiplayerResumeButton) {
+  multiplayerResumeButton.addEventListener("click", function () {
+    if (!currentRoomCode || !multiplayerIntroFinished) {
+      return;
+    }
+
+    socket.emit("toggleMultiplayerPause", {
+      roomCode: currentRoomCode,
+    });
+  });
+}
 
 function resetMultiplayerToMenu() {
   if (currentRoomCode) {

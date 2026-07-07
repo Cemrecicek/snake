@@ -23,48 +23,83 @@
 
       <section class="screen single-player-screen hidden">
         <button class="back-menu-btn">Ana Menü</button>
-
         <h1>Snake</h1>
+        <button class="pause-btn hidden">Pause</button>
 
-        <button class="pause-btn">Pause</button>
+        <div class="single-setup-panel game-customize-panel">
+          <h2>Tek Oyunculu Ayarları</h2>
 
-        <h2 class="oyunBitti"></h2>
+          <label>
+            Yılan Rengi
+            <select class="single-snake-color-select">
+              <option value="green">Yeşil</option>
+              <option value="blue">Mavi</option>
+              <option value="purple">Mor</option>
+              <option value="orange">Turuncu</option>
+              <option value="pink">Pembe</option>
+            </select>
+          </label>
 
-        <canvas id="board"></canvas>
+          <label>
+            Harita Teması
+            <select class="single-theme-select">
+              <option value="dark">Koyu</option>
+              <option value="light">Açık</option>
+            </select>
+          </label>
 
-        <h2 class="skor">Skor: 0</h2>
-        <button class="baslat">Yeni Oyun</button>
-        <h2 class="enYuksekSkor">En Yüksek Skor: 0</h2>
-
-        <div class="controls">
-          <button class="control-btn up" data-direction="up">▲</button>
-          <button class="control-btn left" data-direction="left">◀</button>
-          <button class="control-btn down" data-direction="down">▼</button>
-          <button class="control-btn right" data-direction="right">▶</button>
+          <button class="baslat">Oyuna Başla</button>
         </div>
 
-        <section class="leaderboard">
-          <h2>Global Skorlar</h2>
-          <ol class="leaderboard-list"></ol>
-        </section>
+        <div class="single-game-area hidden">
+          <h2 class="oyunBitti"></h2>
 
-        <div class="modal hidden">
-          <div class="modal-content">
-            <h2>Kaybettiniz</h2>
-            <p class="modal-score">Skor: 0</p>
-            <p class="modal-high-score">En Yüksek Skor: 0</p>
+          <canvas id="board"></canvas>
 
-            <input
-              class="player-name"
-              type="text"
-              maxlength="20"
-              placeholder="Adınız"
-            />
+          <h2 class="skor">Skor: 0</h2>
+          <h2 class="enYuksekSkor">En Yüksek Skor: 0</h2>
 
-            <button class="save-score">Skoru Kaydet</button>
-            <button class="modal-restart">Tekrar Başla</button>
+          <div class="controls">
+            <button class="control-btn up" data-direction="up">▲</button>
+            <button class="control-btn left" data-direction="left">◀</button>
+            <button class="control-btn down" data-direction="down">▼</button>
+            <button class="control-btn right" data-direction="right">▶</button>
+          </div>
 
-            <p class="save-message"></p>
+          <section class="leaderboard">
+            <h2>Global Skorlar</h2>
+            <ol class="leaderboard-list">
+              <li>Yükleniyor...</li>
+            </ol>
+          </section>
+
+          <div class="modal hidden">
+            <div class="modal-content">
+              <h2>Oyun Bitti</h2>
+
+              <p class="modal-score">Skor: 0</p>
+              <p class="modal-high-score">En Yüksek Skor: 0</p>
+
+              <input
+                class="player-name"
+                type="text"
+                maxlength="20"
+                placeholder="Adınız"
+              />
+
+              <button class="save-score">Skoru Kaydet</button>
+              <button class="modal-restart">Tekrar Oyna</button>
+
+              <p class="save-message"></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="pause-modal single-pause-modal hidden">
+          <div class="pause-modal-content">
+            <h2>Oyun Duraklatıldı</h2>
+            <p>Devam etmek için butona bas.</p>
+            <button class="single-resume-btn">Devam Et</button>
           </div>
         </div>
       </section>
@@ -76,7 +111,6 @@
 
         <button class="multiplayer-pause-btn hidden">Pause</button>
 
-        
         <div class="multiplayer-panel">
           <div class="multiplayer-lobby">
             <input
@@ -85,6 +119,28 @@
               maxlength="20"
               placeholder="Oyuncu adınız"
             />
+            <div
+              class="multiplayer-customize-panel game-customize-panel compact-customize-panel"
+            >
+              <label>
+                Yılan Rengi
+                <select class="multiplayer-snake-color-select">
+                  <option value="green">Yeşil</option>
+                  <option value="blue">Mavi</option>
+                  <option value="purple">Mor</option>
+                  <option value="orange">Turuncu</option>
+                  <option value="pink">Pembe</option>
+                </select>
+              </label>
+
+              <label>
+                Harita Teması
+                <select class="multiplayer-theme-select">
+                  <option value="dark">Koyu</option>
+                  <option value="light">Açık</option>
+                </select>
+              </label>
+            </div>
 
             <div class="multiplayer-control-side-select">
               <p>Kontroller nerede olsun?</p>
@@ -191,6 +247,14 @@
             <button class="multiplayer-menu-btn">Ana Menü</button>
 
             <p class="multiplayer-restart-message"></p>
+          </div>
+        </div>
+
+        <div class="pause-modal multiplayer-pause-modal hidden">
+          <div class="pause-modal-content">
+            <h2>Oyun Duraklatıldı</h2>
+            <p>Oyunculardan biri oyunu durdurdu.</p>
+            <button class="multiplayer-resume-btn">Devam Et</button>
           </div>
         </div>
       </section>

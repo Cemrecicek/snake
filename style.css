@@ -838,6 +838,92 @@ h1 {
   gap: 10px;
 }
 
+/* MULTIPLAYER CUSTOMIZE  MODAL */
+
+.game-customize-panel {
+  width: min(90vw, 360px);
+  padding: 14px;
+  border: 2px dashed #111;
+  background: #f5f5f5;
+  text-align: center;
+  box-shadow: 3px 3px 0 #111;
+}
+
+.game-customize-panel h2 {
+  margin: 0 0 12px;
+  font-size: 18px;
+}
+
+.game-customize-panel label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.game-customize-panel select {
+  height: 34px;
+  padding: 4px 8px;
+  border: 2px solid #111;
+  background: #fff;
+  font-family: "Courier New", Courier, monospace;
+  font-weight: bold;
+}
+
+.compact-customize-panel {
+  padding: 8px;
+}
+
+.compact-customize-panel label {
+  margin-bottom: 7px;
+  font-size: 12px;
+}
+
+.compact-customize-panel select {
+  height: 30px;
+  font-size: 12px;
+}
+
+.pause-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  color: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2200;
+}
+
+.pause-modal-content {
+  width: min(90vw, 380px);
+  padding: 26px 18px;
+  border: 3px solid #111;
+  background: #fff;
+  text-align: center;
+  box-shadow: 5px 5px 0 #111;
+}
+
+.pause-modal-content h2 {
+  margin: 0 0 12px;
+  font-size: 24px;
+}
+
+.pause-modal-content p {
+  margin: 0 0 16px;
+  font-size: 14px;
+}
+
+.single-resume-btn,
+.multiplayer-resume-btn {
+  width: min(70vw, 200px);
+  height: 40px;
+  font-size: 15px;
+  font-weight: bold;
+}
+
 /* MULTIPLAYER FORM */
 
 .multiplayer-player-name,
@@ -1169,6 +1255,50 @@ h1 {
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+
+  @media (max-width: 920px) and (orientation: landscape) {
+    .compact-customize-panel,
+    .game-customize-panel {
+      width: min(50vw, 280px);
+      padding: 6px;
+    }
+
+    .game-customize-panel h2 {
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+
+    .game-customize-panel label {
+      gap: 3px;
+      margin-bottom: 5px;
+      font-size: 10px;
+    }
+
+    .game-customize-panel select {
+      height: 24px;
+      font-size: 10px;
+      padding: 2px 5px;
+    }
+
+    .pause-modal-content {
+      width: min(70vw, 320px);
+      padding: 16px 12px;
+    }
+
+    .pause-modal-content h2 {
+      font-size: 18px;
+    }
+
+    .pause-modal-content p {
+      font-size: 12px;
+    }
+
+    .single-resume-btn,
+    .multiplayer-resume-btn {
+      height: 30px;
+      font-size: 12px;
+    }
   }
 
   .multiplayer-lobby {

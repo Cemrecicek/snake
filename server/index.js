@@ -23,16 +23,99 @@ const GAME_ROWS = 24;
 const GAME_COLS = 36;
 const BLOCK_SIZE = 24;
 
+const PLAYER_COLORS = {
+  green: {
+    value: "#7CFC00",
+    name: "Yeşil",
+  },
+  blue: {
+    value: "#00BFFF",
+    name: "Mavi",
+  },
+  purple: {
+    value: "#A855F7",
+    name: "Mor",
+  },
+  orange: {
+    value: "#FF9800",
+    name: "Turuncu",
+  },
+  pink: {
+    value: "#FF4FD8",
+    name: "Pembe",
+  },
+};
+
+const BOARD_THEMES = {
+  dark: {
+    key: "dark",
+    background: "black",
+    food: "red",
+  },
+  light: {
+    key: "light",
+    background: "#D8DEE9",
+    food: "#ff002b",
+  },
+};
+
 app.get("/health", function (req, res) {
   res.send("Snake multiplayer server çalışıyor.");
 });
 
-function createInitialGameState(roomCode) {
+function getSafeColorKey(colorKey, fallback) {
+  if (PLAYER_COLORS[colorKey]) {
+    return colorKey;
+  }
+
+  return fallback;
+}
+
+function getSafeThemeKey(themeKey) {
+  if (BOARD_THEMES[themeKey]) {
+    return themeKey;
+  }
+
+  return "dark";
+}
+
+function getThemeData(themeKey) {
+  var safeThemeKey = getSafeThemeKey(themeKey);
+  return BOARD_THEMES[safeThemeKey];
+}
+
+function getDifferentColorKey(requestedColorKey, otherColorKey) {
+  var safeRequestedColorKey = getSafeColorKey(requestedColorKey, "blue");
+
+  if (safeRequestedColorKey !== otherColorKey) {
+    return safeRequestedColorKey;
+  }
+
+  var colorKeys = Object.keys(PLAYER_COLORS);
+
+  for (var i = 0; i < colorKeys.length; i++) {
+    if (colorKeys[i] !== otherColorKey) {
+      return colorKeys[i];
+    }
+  }
+
+  return "blue";
+}
+
+function createInitialGameState(roomCode, options) {
+  options = options || {};
+
+  var player1ColorKey = getSafeColorKey(options.player1ColorKey, "green");
+  var player2ColorKey = getDifferentColorKey("blue", player1ColorKey);
+  var boardThemeKey = getSafeThemeKey(options.boardTheme);
+  var boardTheme = getThemeData(boardThemeKey);
+
   return {
     roomCode: roomCode,
     rows: GAME_ROWS,
     cols: GAME_COLS,
     blockSize: BLOCK_SIZE,
+    boardTheme: boardTheme,
     food: {
       x: 18,
       y: 12,
@@ -46,8 +129,9 @@ function createInitialGameState(roomCode) {
         direction: null,
         body: [],
         score: 0,
-        color: "chartreuse",
-        colorName: "Yeşil",
+        colorKey: player1ColorKey,
+        color: PLAYER_COLORS[player1ColorKey].value,
+        colorName: PLAYER_COLORS[player1ColorKey].name,
       },
       player2: {
         id: null,
@@ -57,8 +141,9 @@ function createInitialGameState(roomCode) {
         direction: null,
         body: [],
         score: 0,
-        color: "deepskyblue",
-        colorName: "Mavi",
+        colorKey: player2ColorKey,
+        color: PLAYER_COLORS[player2ColorKey].value,
+        colorName: PLAYER_COLORS[player2ColorKey].name,
       },
     },
     gameStarted: false,
@@ -219,24 +304,17 @@ function checkGameOver(roomCode) {
   var player1HitPlayer2Body = isHeadTouchingBody(player1, player2.body);
   var player2HitPlayer1Body = isHeadTouchingBody(player2, player1.body);
 
-  if (
-    (player1Out && player2Out) ||
+  var anyGameOver =
+    player1Out ||
+    player2Out ||
     headToHead ||
-    (player1HitSelf && player2HitSelf) ||
-    (player1HitPlayer2Body && player2HitPlayer1Body)
-  ) {
+    player1HitSelf ||
+    player2HitSelf ||
+    player1HitPlayer2Body ||
+    player2HitPlayer1Body;
+
+  if (anyGameOver) {
     endGame(roomCode, getWinnerByScore(player1, player2));
-    return;
-  }
-
-  if (player1Out || player1HitSelf || player1HitPlayer2Body) {
-    endGame(roomCode, player2.name);
-    return;
-  }
-
-  if (player2Out || player2HitSelf || player2HitPlayer1Body) {
-    endGame(roomCode, player1.name);
-    return;
   }
 }
 
@@ -314,13 +392,25 @@ function resetRoomGame(roomCode) {
   var player1Name = oldGame.players.player1.name;
   var player2Name = oldGame.players.player2.name;
 
-  rooms[roomCode] = createInitialGameState(roomCode);
+  var player1ColorKey = oldGame.players.player1.colorKey;
+  var player2ColorKey = oldGame.players.player2.colorKey;
+  var boardTheme = oldGame.boardTheme.key;
+
+  rooms[roomCode] = createInitialGameState(roomCode, {
+    player1ColorKey: player1ColorKey,
+    boardTheme: boardTheme,
+  });
 
   rooms[roomCode].players.player1.id = player1Id;
   rooms[roomCode].players.player2.id = player2Id;
 
   rooms[roomCode].players.player1.name = player1Name;
   rooms[roomCode].players.player2.name = player2Name;
+
+  rooms[roomCode].players.player2.colorKey = player2ColorKey;
+  rooms[roomCode].players.player2.color = PLAYER_COLORS[player2ColorKey].value;
+  rooms[roomCode].players.player2.colorName =
+    PLAYER_COLORS[player2ColorKey].name;
 
   io.to(roomCode).emit("restartAccepted", {
     message: "İki oyuncu hazır. Oyun yeniden başlıyor.",
@@ -339,7 +429,11 @@ io.on("connection", function (socket) {
 
     socket.join(roomCode);
 
-    rooms[roomCode] = createInitialGameState(roomCode);
+    rooms[roomCode] = createInitialGameState(roomCode, {
+      player1ColorKey: data.snakeColor,
+      boardTheme: data.boardTheme,
+    });
+
     rooms[roomCode].players.player1.id = socket.id;
     rooms[roomCode].players.player1.name = data.playerName || "Oyuncu 1";
 
@@ -387,6 +481,17 @@ io.on("connection", function (socket) {
 
     rooms[roomCode].players.player2.id = socket.id;
     rooms[roomCode].players.player2.name = data.playerName || "Oyuncu 2";
+
+    var player2ColorKey = getDifferentColorKey(
+      data.snakeColor,
+      rooms[roomCode].players.player1.colorKey,
+    );
+
+    rooms[roomCode].players.player2.colorKey = player2ColorKey;
+    rooms[roomCode].players.player2.color =
+      PLAYER_COLORS[player2ColorKey].value;
+    rooms[roomCode].players.player2.colorName =
+      PLAYER_COLORS[player2ColorKey].name;
 
     var playerCountAfterJoin = io.sockets.adapter.rooms.get(roomCode).size;
 
@@ -474,7 +579,7 @@ io.on("connection", function (socket) {
       message: "Diğer oyuncu ana menüye döndü.",
     });
 
-    clearInterval(rooms[roomCode].interval);
+    clearInterval(rooms[roomCode].intervalId);
     delete rooms[roomCode];
   });
 

@@ -21,8 +21,8 @@ window.addEventListener("load", function () {
     singlePlayerButton.addEventListener("click", function () {
       showScreen("single-player-screen");
 
-      if (typeof startGame === "function") {
-        startGame();
+      if (typeof showSinglePlayerSetup === "function") {
+        showSinglePlayerSetup();
       }
     });
   }

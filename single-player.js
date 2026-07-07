@@ -24,6 +24,28 @@ var snakeBody = [];
 var count = 0;
 var highScore = 0;
 
+var snakeColor = localStorage.getItem("snakeColor") || "green";
+var boardTheme = localStorage.getItem("boardTheme") || "dark";
+
+var colorMap = {
+  green: "#7CFC00",
+  blue: "#00BFFF",
+  purple: "#A855F7",
+  orange: "#FF9800",
+  pink: "#FF4FD8",
+};
+
+var themeMap = {
+  dark: {
+    background: "black",
+    food: "red",
+  },
+  light: {
+    background: "#D8DEE9",
+    food: "#ff002b",
+  },
+};
+
 //elma
 
 var elmaX;
@@ -153,21 +175,43 @@ function showGameOverModal() {
   var playerNameInput = document.querySelector(".player-name");
   var saveMessage = document.querySelector(".save-message");
   var saveScoreButton = document.querySelector(".save-score");
-  saveScoreButton.disabled = false;
 
-  modalScore.textContent = "Skor: " + count;
-  modalHighScore.textContent = "En Yüksek Skor: " + highScore;
-  saveMessage.textContent = "";
+  if (!modal) {
+    return;
+  }
+
+  if (saveScoreButton) {
+    saveScoreButton.disabled = false;
+  }
+
+  if (modalScore) {
+    modalScore.textContent = "Skor: " + count;
+  }
+
+  if (modalHighScore) {
+    modalHighScore.textContent = "En Yüksek Skor: " + highScore;
+  }
+
+  if (saveMessage) {
+    saveMessage.textContent = "";
+  }
 
   modal.classList.remove("hidden");
 
-  setTimeout(function () {
-    playerNameInput.focus();
-  }, 100);
+  if (playerNameInput) {
+    setTimeout(function () {
+      playerNameInput.focus();
+    }, 100);
+  }
 }
 
 function hideGameOverModal() {
   var modal = document.querySelector(".modal");
+
+  if (!modal) {
+    return;
+  }
+
   modal.classList.add("hidden");
 }
 
@@ -179,10 +223,10 @@ function update() {
     return;
   }
 
-  context.fillStyle = "black";
+  context.fillStyle = themeMap[boardTheme].background;
   context.fillRect(0, 0, board.width, board.height);
 
-  context.fillStyle = "red";
+  context.fillStyle = themeMap[boardTheme].food;
   context.fillRect(elmaX, elmaY, blockSize, blockSize);
 
   //Yılanın elmayı yediğini kontrol edelim
@@ -205,7 +249,7 @@ function update() {
     snakeBody[0] = [snakeX, snakeY];
   }
 
-  context.fillStyle = "chartreuse";
+  context.fillStyle = colorMap[snakeColor];
   snakeX += velocityX * blockSize;
   snakeY += velocityY * blockSize;
   context.fillRect(snakeX, snakeY, blockSize, blockSize);
@@ -237,6 +281,7 @@ function update() {
 
 // Oyunu başlatan fonksiyon
 function startGame() {
+  showSinglePlayerGame();
   hideGameOverModal();
 
   // Oyunun durumunu sıfırla
@@ -273,8 +318,115 @@ function togglePause() {
     return;
   }
 
+  var pauseModal = document.querySelector(".single-pause-modal");
+
   isPaused = !isPaused;
   updatePauseButton();
+
+  if (pauseModal) {
+    if (isPaused) {
+      pauseModal.classList.remove("hidden");
+    } else {
+      pauseModal.classList.add("hidden");
+    }
+  }
+}
+
+function showSinglePlayerSetup() {
+  var setupPanel = document.querySelector(".single-setup-panel");
+  var gameArea = document.querySelector(".single-game-area");
+  var pauseButton = document.querySelector(".pause-btn");
+  var pauseModal = document.querySelector(".single-pause-modal");
+
+  gameOver = true;
+  isPaused = false;
+
+  if (setupPanel) {
+    setupPanel.classList.remove("hidden");
+  }
+
+  if (gameArea) {
+    gameArea.classList.add("hidden");
+  }
+
+  if (pauseButton) {
+    pauseButton.classList.add("hidden");
+  }
+
+  if (pauseModal) {
+    pauseModal.classList.add("hidden");
+  }
+
+  updatePauseButton();
+}
+
+function showSinglePlayerGame() {
+  var setupPanel = document.querySelector(".single-setup-panel");
+  var gameArea = document.querySelector(".single-game-area");
+  var pauseButton = document.querySelector(".pause-btn");
+
+  if (setupPanel) {
+    setupPanel.classList.add("hidden");
+  }
+
+  if (gameArea) {
+    gameArea.classList.remove("hidden");
+  }
+
+  if (pauseButton) {
+    pauseButton.classList.remove("hidden");
+  }
+}
+
+function setupSingleSelects() {
+  var colorSelect = document.querySelector(".single-snake-color-select");
+  var themeSelect = document.querySelector(".single-theme-select");
+
+  if (colorSelect) {
+    colorSelect.value = snakeColor;
+
+    colorSelect.addEventListener("change", function () {
+      snakeColor = colorSelect.value;
+      localStorage.setItem("snakeColor", snakeColor);
+    });
+  }
+
+  if (themeSelect) {
+    themeSelect.value = boardTheme;
+
+    themeSelect.addEventListener("change", function () {
+      boardTheme = themeSelect.value;
+      localStorage.setItem("boardTheme", boardTheme);
+    });
+  }
+}
+
+function resetSinglePlayerToMenu() {
+  gameOver = true;
+  isPaused = false;
+
+  snakeX = blockSize * 10;
+  snakeY = blockSize * 10;
+  velocityX = 0;
+  velocityY = 0;
+  snakeBody = [];
+  count = 0;
+
+  var oyunBittiText = document.querySelector(".oyunBitti");
+  var pauseModal = document.querySelector(".single-pause-modal");
+
+  if (oyunBittiText) {
+    oyunBittiText.innerHTML = "";
+  }
+
+  if (pauseModal) {
+    pauseModal.classList.add("hidden");
+  }
+
+  hideGameOverModal();
+  updatePauseButton();
+  updateScoreBoard();
+  showSinglePlayerSetup();
 }
 
 //foksiyonumuz
@@ -291,26 +443,49 @@ window.onload = function () {
   document.addEventListener("keydown", changeDirection);
 
   var baslatButton = document.querySelector(".baslat");
-  baslatButton.addEventListener("click", startGame);
+
+  if (baslatButton) {
+    baslatButton.addEventListener("click", startGame);
+  }
 
   var pauseButton = document.querySelector(".pause-btn");
-  pauseButton.addEventListener("click", togglePause);
+
+  if (pauseButton) {
+    pauseButton.addEventListener("click", togglePause);
+  }
+
+  var singleResumeButton = document.querySelector(".single-resume-btn");
+
+  if (singleResumeButton) {
+    singleResumeButton.addEventListener("click", togglePause);
+  }
+
+  setupSingleSelects();
+  showSinglePlayerSetup();
 
   var modalRestartButton = document.querySelector(".modal-restart");
-  modalRestartButton.addEventListener("click", startGame);
+
+  if (modalRestartButton) {
+    modalRestartButton.addEventListener("click", startGame);
+  }
 
   var saveScoreButton = document.querySelector(".save-score");
-  saveScoreButton.addEventListener("click", saveGlobalScore);
+
+  if (saveScoreButton) {
+    saveScoreButton.addEventListener("click", saveGlobalScore);
+  }
 
   var playerNameInput = document.querySelector(".player-name");
 
-  playerNameInput.addEventListener("keydown", function (e) {
-    e.stopPropagation();
+  if (playerNameInput) {
+    playerNameInput.addEventListener("keydown", function (e) {
+      e.stopPropagation();
 
-    if (e.key === "Enter") {
-      saveGlobalScore();
-    }
-  });
+      if (e.key === "Enter") {
+        saveGlobalScore();
+      }
+    });
+  }
 
   loadGlobalScores();
 
@@ -341,9 +516,9 @@ function changeDirection(e) {
     return;
   }
   if (e.code === "KeyP") {
-  togglePause();
-  return;
-}
+    togglePause();
+    return;
+  }
 
   if (e.code === "ArrowUp" || e.key === "w" || e.key === "W") {
     setDirection("up");
