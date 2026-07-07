@@ -1,10 +1,12 @@
-const CACHE_NAME = "snake-game-v8";
+const CACHE_NAME = "snake-game-v12";
 
 const FILES_TO_CACHE = [
   "./",
   "./index.html",
   "./style.css",
-  "./snake.js",
+  "./screen-manager.js",
+  "./single-player.js",
+  "./multiplayer.js",
   "./manifest.json",
   "./icons/icon-192.png",
   "./icons/icon-512.png"

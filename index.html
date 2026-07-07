@@ -13,51 +13,194 @@
   </head>
 
   <body>
-    <main class="game-container">
-      <h1>Snake</h1>
-      <h2 class="oyunBitti"></h2>
+    <main class="app-container">
+      <section class="screen menu-screen">
+        <h1>Snake</h1>
 
-      <canvas id="board"></canvas>
-
-      <h2 class="skor">Skor: 0</h2>
-      <button class="baslat">Yeni Oyun</button>
-      <h2 class="enYuksekSkor">En Yüksek Skor: 0</h2>
-
-      <div class="controls">
-        <button class="control-btn up" data-direction="up">▲</button>
-        <button class="control-btn left" data-direction="left">◀</button>
-        <button class="control-btn down" data-direction="down">▼</button>
-        <button class="control-btn right" data-direction="right">▶</button>
-      </div>
-
-      <section class="leaderboard">
-        <h2>Global Skorlar</h2>
-        <ol class="leaderboard-list"></ol>
+        <button class="menu-btn single-player-btn">Tek Oyunculu</button>
+        <button class="menu-btn multiplayer-btn">Çok Oyunculu</button>
       </section>
 
-      <div class="modal hidden">
-        <div class="modal-content">
-          <h2>Kaybettiniz</h2>
-          <p class="modal-score">Skor: 0</p>
-          <p class="modal-high-score">En Yüksek Skor: 0</p>
+      <section class="screen single-player-screen hidden">
+        <button class="back-menu-btn">Ana Menü</button>
 
-          <input
-            class="player-name"
-            type="text"
-            maxlength="20"
-            placeholder="Adınız"
-          />
+        <h1>Snake</h1>
 
-          <button class="save-score">Skoru Kaydet</button>
-          <button class="modal-restart">Tekrar Başla</button>
+        <button class="pause-btn">Pause</button>
 
-          <p class="save-message"></p>
+        <h2 class="oyunBitti"></h2>
+
+        <canvas id="board"></canvas>
+
+        <h2 class="skor">Skor: 0</h2>
+        <button class="baslat">Yeni Oyun</button>
+        <h2 class="enYuksekSkor">En Yüksek Skor: 0</h2>
+
+        <div class="controls">
+          <button class="control-btn up" data-direction="up">▲</button>
+          <button class="control-btn left" data-direction="left">◀</button>
+          <button class="control-btn down" data-direction="down">▼</button>
+          <button class="control-btn right" data-direction="right">▶</button>
         </div>
-      </div>
+
+        <section class="leaderboard">
+          <h2>Global Skorlar</h2>
+          <ol class="leaderboard-list"></ol>
+        </section>
+
+        <div class="modal hidden">
+          <div class="modal-content">
+            <h2>Kaybettiniz</h2>
+            <p class="modal-score">Skor: 0</p>
+            <p class="modal-high-score">En Yüksek Skor: 0</p>
+
+            <input
+              class="player-name"
+              type="text"
+              maxlength="20"
+              placeholder="Adınız"
+            />
+
+            <button class="save-score">Skoru Kaydet</button>
+            <button class="modal-restart">Tekrar Başla</button>
+
+            <p class="save-message"></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="screen multiplayer-screen hidden">
+        <button class="back-menu-btn">Ana Menü</button>
+
+        <h1>Çok Oyunculu</h1>
+
+        <button class="multiplayer-pause-btn hidden">Pause</button>
+
+        
+        <div class="multiplayer-panel">
+          <div class="multiplayer-lobby">
+            <input
+              class="multiplayer-player-name"
+              type="text"
+              maxlength="20"
+              placeholder="Oyuncu adınız"
+            />
+
+            <div class="multiplayer-control-side-select">
+              <p>Kontroller nerede olsun?</p>
+
+              <div class="control-side-buttons">
+                <button
+                  class="control-side-btn control-side-left"
+                  data-side="left"
+                >
+                  Sol
+                </button>
+
+                <button
+                  class="control-side-btn control-side-right"
+                  data-side="right"
+                >
+                  Sağ
+                </button>
+              </div>
+            </div>
+
+            <button class="create-room-btn">Oda Oluştur</button>
+
+            <input
+              class="room-code-input"
+              type="text"
+              maxlength="4"
+              placeholder="Oda kodu"
+            />
+
+            <button class="join-room-btn">Odaya Katıl</button>
+          </div>
+
+          <div class="room-info hidden">
+            <p class="room-code-text">Oda Kodu: -</p>
+            <p class="player-count-text">Oyuncu Sayısı: 0/2</p>
+            <p class="room-message-text">Oda bekleniyor...</p>
+          </div>
+
+          <div class="multiplayer-game-area hidden">
+            <div class="multiplayer-rotate-warning">
+              <p>Multiplayer için telefonu yatay çevirin.</p>
+            </div>
+
+            <canvas id="multiplayer-board"></canvas>
+
+            <div class="multiplayer-scoreboard">
+              <p class="player-one-score">Oyuncu 1: 0</p>
+              <p class="player-two-score">Oyuncu 2: 0</p>
+            </div>
+
+            <div class="multiplayer-controls">
+              <button
+                class="multiplayer-control-btn multiplayer-up"
+                data-direction="up"
+              >
+                ▲
+              </button>
+
+              <button
+                class="multiplayer-control-btn multiplayer-left"
+                data-direction="left"
+              >
+                ◀
+              </button>
+
+              <button
+                class="multiplayer-control-btn multiplayer-down"
+                data-direction="down"
+              >
+                ▼
+              </button>
+
+              <button
+                class="multiplayer-control-btn multiplayer-right"
+                data-direction="right"
+              >
+                ▶
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="multiplayer-intro-modal hidden">
+          <div class="multiplayer-intro-content">
+            <h2>Oyuncu Bilgin</h2>
+            <p class="intro-player-name">-</p>
+            <p class="intro-player-number">-</p>
+            <p class="intro-player-color">-</p>
+            <p class="intro-countdown">Oyun 4 saniye içinde başlıyor...</p>
+          </div>
+        </div>
+
+        <div class="multiplayer-game-over-modal hidden">
+          <div class="multiplayer-game-over-content">
+            <h2>Oyun Bitti</h2>
+
+            <p class="multiplayer-winner-text">Kazanan: -</p>
+
+            <p class="multiplayer-final-score-one">Oyuncu 1: 0</p>
+            <p class="multiplayer-final-score-two">Oyuncu 2: 0</p>
+
+            <button class="multiplayer-restart-btn">Tekrar Oyna</button>
+            <button class="multiplayer-menu-btn">Ana Menü</button>
+
+            <p class="multiplayer-restart-message"></p>
+          </div>
+        </div>
+      </section>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="./snake.js"></script>
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script src="./single-player.js"></script>
+    <script src="./multiplayer.js"></script>
+    <script src="./screen-manager.js"></script>
 
     <script>
       if ("serviceWorker" in navigator) {

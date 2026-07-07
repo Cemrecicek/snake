@@ -17,6 +17,37 @@ body {
   color: #111;
 }
 
+button {
+  font-family: "Courier New", Courier, monospace;
+  border: 2px solid #111;
+  background: #e5e5e5;
+  color: #111;
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    box-shadow 0.12s ease,
+    background-color 0.12s ease;
+}
+
+button:hover {
+  background: #d4d4d4;
+  box-shadow: 3px 3px 0 #111;
+  transform: translate(-2px, -2px);
+}
+
+button:active {
+  box-shadow: 1px 1px 0 #111;
+  transform: translate(0, 0);
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.app-container,
 .game-container {
   width: 100%;
   min-height: 100dvh;
@@ -27,8 +58,25 @@ body {
   justify-content: flex-start;
 }
 
+.screen {
+  width: 100%;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.menu-screen {
+  justify-content: center;
+  gap: 14px;
+}
+
+.single-player-screen {
+  position: relative;
+}
+
 h1 {
-  margin: 4px 0 4px;
+  margin: 4px 0;
   font-size: 24px;
 }
 
@@ -36,6 +84,16 @@ h1 {
   min-height: 22px;
   margin: 0;
   font-size: 16px;
+}
+
+.skor {
+  margin: 8px 0;
+  font-size: 16px;
+}
+
+.enYuksekSkor {
+  margin: 14px 0 6px;
+  font-size: 20px;
 }
 
 #board {
@@ -49,19 +107,72 @@ h1 {
   touch-action: none;
 }
 
-.skor {
-  margin: 8px 0 8px;
-  font-size: 16px;
+.menu-btn,
+.back-menu-btn,
+.pause-btn,
+.multiplayer-pause-btn,
+.create-room-btn,
+.join-room-btn,
+.baslat,
+.save-score,
+.modal-restart {
+  font-weight: bold;
+  letter-spacing: 0.5px;
+}
+
+.menu-btn {
+  width: min(80vw, 260px);
+  height: 52px;
+  font-size: 18px;
 }
 
 .baslat {
   width: min(70vw, 180px);
   height: 38px;
   font-size: 14px;
-  font-family: "Courier New", Courier, monospace;
-  background-color: rgb(204, 205, 205);
-  border: 1px solid #111;
-  cursor: pointer;
+}
+
+.single-player-screen .back-menu-btn {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 130px;
+  height: 38px;
+  margin: 0;
+  font-size: 14px;
+  z-index: 10;
+}
+
+.pause-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 130px;
+  height: 38px;
+  margin: 0;
+  font-size: 14px;
+  z-index: 10;
+}
+
+.create-room-btn,
+.join-room-btn {
+  width: min(80vw, 240px);
+  height: 44px;
+  font-size: 16px;
+}
+
+.modal-restart {
+  margin-top: 16px;
+  width: min(70vw, 200px);
+  height: 44px;
+  font-size: 16px;
+}
+
+.save-score {
+  margin-top: 10px;
+  width: min(70vw, 200px);
+  height: 42px;
+  font-size: 15px;
 }
 
 .controls {
@@ -76,9 +187,6 @@ h1 {
   height: 44px;
   font-size: 20px;
   font-weight: bold;
-  border: 1px solid #111;
-  background: #ddd;
-  cursor: pointer;
 }
 
 .up {
@@ -97,51 +205,36 @@ h1 {
   grid-column: 3;
 }
 
-.baslat:active,
-.control-btn:active {
-  transform: scale(0.96);
+.leaderboard {
+  width: min(92vw, 360px);
+  margin-top: 14px;
+  padding: 12px;
+  border: 2px solid #111;
+  background: #fff;
+  max-height: 180px;
+  overflow: hidden;
 }
 
-@media (max-height: 700px) {
-  #board {
-    width: min(78vw, 52vh, 525px);
-    height: min(78vw, 52vh, 525px);
-  }
-
-  h1 {
-    font-size: 18px;
-    margin-top: 4px;
-  }
-
-  .skor {
-    margin: 6px 0;
-  }
-
-  .baslat {
-    height: 32px;
-  }
-
-  .control-btn {
-    height: 36px;
-  }
-
-  .controls {
-    margin-top: 8px;
-  }
+.leaderboard h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
 }
 
-@media (min-width: 700px) {
-  h1 {
-    font-size: 32px;
-  }
+.leaderboard-list {
+  margin: 0;
+  padding-left: 40px;
+  text-align: left;
+  max-height: 100px;
+  overflow: hidden;
+  list-style-type: decimal;
+  list-style-position: outside;
+}
 
-  .skor {
-    font-size: 20px;
-  }
-
-  .controls {
-    display: none;
-  }
+.leaderboard-list li {
+  display: list-item;
+  margin: 4px 0;
+  font-size: 14px;
+  white-space: nowrap;
 }
 
 .modal {
@@ -153,10 +246,6 @@ h1 {
   justify-content: center;
   padding: 16px;
   z-index: 999;
-}
-
-.hidden {
-  display: none;
 }
 
 .modal-content {
@@ -179,61 +268,6 @@ h1 {
   font-size: 18px;
 }
 
-.modal-restart {
-  margin-top: 16px;
-  width: min(70vw, 200px);
-  height: 44px;
-  font-size: 16px;
-  font-family: "Courier New", Courier, monospace;
-  background-color: rgb(204, 205, 205);
-  border: 2px solid #111;
-  cursor: pointer;
-}
-
-.modal-restart:active {
-  transform: scale(0.96);
-}
-
-.leaderboard {
-  width: min(92vw, 360px);
-  margin-top: 10px;
-  padding: 10px;
-  border: 2px solid #111;
-  background: #fff;
-  max-height: 180px;
-  overflow: hidden;
-}
-
-.leaderboard h2 {
-  margin: 0 0 8px;
-  font-size: 18px;
-}
-
-.leaderboard {
-  width: min(92vw, 360px);
-  margin-top: 14px;
-  padding: 12px;
-  border: 2px solid #111;
-  background: #fff;
-}
-
-.leaderboard-list {
-  margin: 0;
-  padding-left: 40px;
-  text-align: left;
-  max-height: 100px;
-  overflow: hidden;
-  list-style-type: decimal;
-  list-style-position: outside;
-}
-
-.leaderboard-list li {
-  display: list-item;
-  margin: 4px 0;
-  font-size: 14px;
-  white-space: nowrap;
-}
-
 .player-name {
   width: min(70vw, 220px);
   height: 38px;
@@ -244,18 +278,1133 @@ h1 {
   border: 2px solid #111;
 }
 
-.save-score {
-  margin-top: 10px;
-  width: min(70vw, 200px);
-  height: 42px;
-  font-size: 15px;
-  font-family: "Courier New", Courier, monospace;
-  background-color: rgb(204, 205, 205);
-  border: 2px solid #111;
-  cursor: pointer;
-}
-
 .save-message {
   min-height: 20px;
   font-size: 14px;
+}
+
+.room-code-input {
+  width: min(80vw, 240px);
+  height: 42px;
+  margin: 10px 0;
+  padding: 8px;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 16px;
+  border: 2px solid #111;
+  text-align: center;
+}
+
+/* .multiplayer-screen {
+  justify-content: center;
+  gap: 14px;
+}
+
+.multiplayer-screen .back-menu-btn {
+  position: static;
+  width: 120px;
+  height: 34px;
+  margin: 0;
+  font-size: 13px;
+}
+
+.multiplayer-panel {
+  width: min(96vw, 920px);
+  padding: 18px;
+  border: 2px solid #111;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 4px 4px 0 #111;
+}
+
+.multiplayer-lobby {
+  width: min(90vw, 360px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.multiplayer-player-name {
+  width: min(80vw, 240px);
+  height: 42px;
+  margin: 0 0 10px;
+  padding: 8px;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 16px;
+  border: 2px solid #111;
+  text-align: center;
+}
+
+.multiplayer-control-side-select {
+  width: min(80vw, 260px);
+  padding: 10px;
+  border: 2px dashed #111;
+  background: #f5f5f5;
+  text-align: center;
+}
+
+.multiplayer-control-side-select p {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.control-side-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.control-side-btn {
+  width: 80px;
+  height: 34px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.control-side-btn.active {
+  background: #111;
+  color: #fff;
+}
+
+.multiplayer-intro-modal {
+  position: fixed;
+  inset: 0;
+  background: #f5f5f5;
+  color: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.multiplayer-intro-content {
+  width: min(90vw, 420px);
+  padding: 28px 20px;
+  border: 3px solid #111;
+  background: #fff;
+  text-align: center;
+  box-shadow: 5px 5px 0 #111;
+}
+
+.multiplayer-intro-content h2 {
+  margin: 0 0 18px;
+  font-size: 26px;
+}
+
+.intro-player-name {
+  margin: 8px 0;
+  font-size: 30px;
+  font-weight: bold;
+}
+
+.intro-player-number {
+  margin: 8px 0;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.intro-player-color {
+  margin: 8px 0;
+  font-size: 20px;
+}
+
+.intro-countdown {
+  margin-top: 18px;
+  font-size: 15px;
+}
+
+.room-info {
+  width: min(90vw, 360px);
+  margin-top: 12px;
+  padding: 12px;
+  border: 2px dashed #111;
+  background: #f5f5f5;
+  text-align: center;
+  box-shadow: 3px 3px 0 #111;
+  z-index: 80;
+}
+
+.room-info p {
+  margin: 6px 0;
+  font-size: 15px;
+}
+
+.room-code-text {
+  font-weight: bold;
+  font-size: 18px !important;
+}
+
+.multiplayer-game-area {
+  width: 100%;
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#multiplayer-board {
+  width: min(94vw, 864px);
+  height: min(62.6vw, 576px);
+  max-width: 864px;
+  max-height: 576px;
+  display: block;
+  background: #000;
+  border: 2px solid #111;
+  touch-action: none;
+}
+
+.multiplayer-scoreboard {
+  width: min(92vw, 720px);
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-weight: bold;
+}
+
+.multiplayer-scoreboard p {
+  margin: 0;
+  font-size: 14px;
+}
+
+.multiplayer-game-over-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  color: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2100;
+}
+
+.multiplayer-game-over-content {
+  width: min(90vw, 420px);
+  padding: 28px 20px;
+  border: 3px solid #111;
+  background: #fff;
+  text-align: center;
+  box-shadow: 5px 5px 0 #111;
+}
+
+.multiplayer-game-over-content h2 {
+  margin: 0 0 18px;
+  font-size: 28px;
+}
+
+.multiplayer-winner-text {
+  margin: 10px 0;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.multiplayer-final-score-one,
+.multiplayer-final-score-two {
+  margin: 8px 0;
+  font-size: 17px;
+}
+
+.multiplayer-restart-btn,
+.multiplayer-menu-btn {
+  width: min(70vw, 220px);
+  height: 42px;
+  margin-top: 12px;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.multiplayer-restart-message {
+  min-height: 20px;
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+.multiplayer-controls {
+  width: min(80vw, 220px);
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.multiplayer-control-btn {
+  height: 44px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.multiplayer-rotate-warning {
+  display: none;
+  width: min(90vw, 360px);
+  padding: 16px;
+  border: 2px solid #111;
+  background: #fff;
+  text-align: center;
+  font-weight: bold;
+}
+
+.multiplayer-up {
+  grid-column: 2;
+}
+
+.multiplayer-left {
+  grid-column: 1;
+}
+
+.multiplayer-down {
+  grid-column: 2;
+}
+
+.multiplayer-right {
+  grid-column: 3;
+}
+@media (max-width: 900px) and (orientation: portrait) {
+  .multiplayer-game-area {
+    justify-content: center;
+  }
+
+  #multiplayer-board,
+  .multiplayer-scoreboard,
+  .multiplayer-controls {
+    display: none;
+  }
+
+  .multiplayer-rotate-warning {
+    display: block;
+  }
+}
+
+@media (max-width: 900px) and (orientation: landscape) {
+  .app-container {
+    padding: 0;
+  }
+
+  .multiplayer-screen {
+    width: 100vw;
+    height: 100dvh;
+    min-height: 100dvh;
+    padding: 6px 0 0;
+    gap: 3px;
+    justify-content: flex-start;
+    overflow: hidden;
+  }
+
+  .multiplayer-screen .back-menu-btn {
+    position: static;
+    width: 90px;
+    height: 24px;
+    padding: 0;
+    font-size: 10px;
+  }
+
+  .multiplayer-screen h1 {
+    margin: 0;
+    font-size: 17px;
+    line-height: 1;
+  }
+
+  .multiplayer-panel {
+    position: relative;
+    width: 100vw;
+    height: calc(100dvh - 52px);
+    padding: 0;
+    border: none;
+    box-shadow: none;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .multiplayer-lobby {
+    width: min(54vw, 340px);
+    gap: 6px;
+  }
+
+  .multiplayer-player-name,
+  .room-code-input,
+  .create-room-btn,
+  .join-room-btn {
+    width: min(50vw, 260px);
+    height: 32px;
+    margin: 0;
+    font-size: 13px;
+  }
+
+  .multiplayer-control-side-select {
+    width: min(50vw, 280px);
+    padding: 6px;
+  }
+
+  .multiplayer-control-side-select p {
+    margin: 0 0 5px;
+    font-size: 12px;
+  }
+
+  .control-side-btn {
+    width: 68px;
+    height: 28px;
+    font-size: 12px;
+  }
+
+  .room-info {
+    position: absolute;
+    inset: 0;
+    width: min(54vw, 330px);
+    height: fit-content;
+    margin: auto;
+    padding: 12px 10px;
+    background: #f5f5f5;
+    z-index: 120;
+    box-shadow: 5px 5px 0 #111;
+  }
+
+  .room-info p {
+    font-size: 12px;
+  }
+
+  .room-code-text {
+    font-size: 14px !important;
+  }
+
+  .multiplayer-game-area {
+    position: relative;
+    width: 100vw;
+    height: 100%;
+    margin-top: 0;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    align-items: center;
+    justify-items: center;
+  }
+
+  .multiplayer-game-area.controls-right {
+    padding-left: 8px;
+    padding-right: 132px;
+  }
+
+  .multiplayer-game-area.controls-left {
+    padding-left: 132px;
+    padding-right: 8px;
+  }
+
+  #multiplayer-board {
+    width: min(calc(100vw - 160px), calc((100dvh - 78px) * 1.5));
+    height: auto;
+    aspect-ratio: 3 / 2;
+    max-height: calc(100dvh - 78px);
+    margin: 0;
+  }
+
+  .multiplayer-scoreboard {
+    width: min(calc(100vw - 160px), calc((100dvh - 78px) * 1.5));
+    margin-top: 2px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .multiplayer-scoreboard p {
+    font-size: 11px;
+  }
+
+  .multiplayer-controls {
+    display: grid !important;
+    position: absolute;
+    top: 50%;
+    width: 112px;
+    margin: 0;
+    transform: translateY(-50%);
+    z-index: 90;
+  }
+
+  .multiplayer-controls.control-left {
+    left: 10px;
+    right: auto;
+  }
+
+  .multiplayer-controls.control-right {
+    right: 10px;
+    left: auto;
+  }
+
+  .multiplayer-control-btn {
+    height: 24px;
+    font-size: 12px;
+  }
+
+  .multiplayer-rotate-warning {
+    display: none;
+  }
+}
+
+@media (max-height: 430px) and (orientation: landscape) {
+  .multiplayer-screen {
+    padding-top: 4px;
+    gap: 2px;
+  }
+
+  .multiplayer-screen .back-menu-btn {
+    height: 22px;
+    font-size: 10px;
+  }
+
+  .multiplayer-screen h1 {
+    font-size: 16px;
+  }
+
+  .multiplayer-panel {
+    height: calc(100dvh - 46px);
+  }
+
+  .multiplayer-game-area.controls-right {
+    padding-right: 120px;
+  }
+
+  .multiplayer-game-area.controls-left {
+    padding-left: 120px;
+  }
+
+  #multiplayer-board {
+    width: min(calc(100vw - 145px), calc((100dvh - 65px) * 1.5));
+    max-height: calc(100dvh - 65px);
+  }
+
+  .multiplayer-scoreboard {
+    width: min(calc(100vw - 145px), calc((100dvh - 65px) * 1.5));
+  }
+
+  .multiplayer-controls {
+    width: 104px;
+  }
+
+  .multiplayer-control-btn {
+    height: 22px;
+    font-size: 11px;
+  }
+} */
+
+/* MULTIPLAYER */
+
+.multiplayer-screen {
+  position: relative;
+  justify-content: center;
+  gap: 14px;
+}
+
+.multiplayer-screen .back-menu-btn {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  width: 120px;
+  height: 34px;
+  margin: 0;
+  font-size: 13px;
+  z-index: 50;
+}
+
+.multiplayer-pause-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 120px;
+  height: 34px;
+  margin: 0;
+  font-size: 13px;
+  z-index: 50;
+}
+
+.multiplayer-panel {
+  position: relative;
+  width: min(96vw, 920px);
+  padding: 18px;
+  border: 2px solid #111;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 4px 4px 0 #111;
+}
+
+.multiplayer-lobby {
+  width: min(90vw, 360px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+/* MULTIPLAYER FORM */
+
+.multiplayer-player-name,
+.room-code-input {
+  width: min(80vw, 240px);
+  height: 42px;
+  margin: 0;
+  padding: 8px;
+  font-family: "Courier New", Courier, monospace;
+  font-size: 16px;
+  border: 2px solid #111;
+  text-align: center;
+}
+
+.multiplayer-control-side-select {
+  width: min(80vw, 260px);
+  padding: 10px;
+  border: 2px dashed #111;
+  background: #f5f5f5;
+  text-align: center;
+}
+
+.multiplayer-control-side-select p {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.control-side-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.control-side-btn {
+  width: 80px;
+  height: 34px;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.control-side-btn.active {
+  background: #111;
+  color: #fff;
+}
+
+/* ROOM INFO */
+
+.room-info {
+  width: min(90vw, 360px);
+  margin-top: 12px;
+  padding: 12px;
+  border: 2px dashed #111;
+  background: #f5f5f5;
+  text-align: center;
+  box-shadow: 3px 3px 0 #111;
+  z-index: 80;
+}
+
+.room-info p {
+  margin: 6px 0;
+  font-size: 15px;
+}
+
+.room-code-text {
+  font-weight: bold;
+  font-size: 18px !important;
+}
+
+/* MULTIPLAYER GAME */
+
+.multiplayer-game-area {
+  width: 100%;
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.multiplayer-pause-btn {
+  width: 120px;
+  height: 34px;
+  font-size: 13px;
+}
+
+#multiplayer-board {
+  width: min(94vw, 864px);
+  height: auto;
+  aspect-ratio: 3 / 2;
+  max-width: 864px;
+  max-height: 576px;
+  display: block;
+  background: #000;
+  border: 2px solid #111;
+  touch-action: none;
+}
+
+.multiplayer-scoreboard {
+  width: min(92vw, 720px);
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-weight: bold;
+}
+
+.multiplayer-scoreboard p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* MULTIPLAYER CONTROLS */
+
+.multiplayer-controls {
+  width: min(80vw, 220px);
+  margin-top: 12px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.multiplayer-control-btn {
+  height: 44px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.multiplayer-up {
+  grid-column: 2;
+}
+
+.multiplayer-left {
+  grid-column: 1;
+}
+
+.multiplayer-down {
+  grid-column: 2;
+}
+
+.multiplayer-right {
+  grid-column: 3;
+}
+
+.multiplayer-rotate-warning {
+  display: none;
+  width: min(90vw, 360px);
+  padding: 16px;
+  border: 2px solid #111;
+  background: #fff;
+  text-align: center;
+  font-weight: bold;
+}
+
+/* MULTIPLAYER INTRO MODAL */
+
+.multiplayer-intro-modal {
+  position: fixed;
+  inset: 0;
+  background: #f5f5f5;
+  color: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.multiplayer-intro-content {
+  width: min(90vw, 420px);
+  padding: 28px 20px;
+  border: 3px solid #111;
+  background: #fff;
+  text-align: center;
+  box-shadow: 5px 5px 0 #111;
+}
+
+.multiplayer-intro-content h2 {
+  margin: 0 0 18px;
+  font-size: 26px;
+}
+
+.intro-player-name {
+  margin: 8px 0;
+  font-size: 30px;
+  font-weight: bold;
+}
+
+.intro-player-number {
+  margin: 8px 0;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.intro-player-color {
+  margin: 8px 0;
+  font-size: 20px;
+}
+
+.intro-countdown {
+  margin-top: 18px;
+  font-size: 15px;
+}
+
+/* MULTIPLAYER GAME OVER MODAL */
+
+.multiplayer-game-over-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  color: #111;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2100;
+}
+
+.multiplayer-game-over-content {
+  width: min(90vw, 420px);
+  padding: 28px 20px;
+  border: 3px solid #111;
+  background: #fff;
+  text-align: center;
+  box-shadow: 5px 5px 0 #111;
+}
+
+.multiplayer-game-over-content h2 {
+  margin: 0 0 18px;
+  font-size: 28px;
+}
+
+.multiplayer-winner-text {
+  margin: 10px 0;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.multiplayer-final-score-one,
+.multiplayer-final-score-two {
+  margin: 8px 0;
+  font-size: 17px;
+}
+
+.multiplayer-restart-btn,
+.multiplayer-menu-btn {
+  width: min(70vw, 220px);
+  height: 42px;
+  margin-top: 12px;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.multiplayer-restart-message {
+  min-height: 20px;
+  margin-top: 12px;
+  font-size: 14px;
+}
+
+/* MOBILE MULTIPLAYER PORTRAIT */
+
+@media (max-width: 920px) and (orientation: portrait) {
+  .multiplayer-game-area {
+    justify-content: center;
+  }
+
+  #multiplayer-board,
+  .multiplayer-scoreboard,
+  .multiplayer-controls {
+    display: none;
+  }
+
+  .multiplayer-rotate-warning {
+    display: block;
+  }
+}
+
+/* MOBILE MULTIPLAYER LANDSCAPE */
+
+@media (max-width: 920px) and (orientation: landscape) {
+  .app-container {
+    padding: 0;
+  }
+
+  .multiplayer-screen {
+    width: 100vw;
+    height: 100dvh;
+    min-height: 100dvh;
+    padding: 4px 0 0;
+    gap: 2px;
+    justify-content: flex-start;
+    overflow: hidden;
+  }
+
+  .multiplayer-screen .back-menu-btn {
+    position: absolute;
+    top: 6px;
+    left: 8px;
+    width: 88px;
+    height: 22px;
+    padding: 0;
+    font-size: 10px;
+    z-index: 50;
+  }
+
+  .multiplayer-pause-btn {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    width: 88px;
+    height: 22px;
+    padding: 0;
+    font-size: 10px;
+    z-index: 50;
+  }
+
+  .multiplayer-screen h1 {
+    margin: 4px 0 0;
+    font-size: 16px;
+    line-height: 1;
+    text-align: center;
+  }
+
+  .multiplayer-panel {
+    position: relative;
+    width: 100vw;
+    height: calc(100dvh - 44px);
+    padding: 0;
+    border: none;
+    box-shadow: none;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .multiplayer-lobby {
+    width: min(54vw, 340px);
+    gap: 6px;
+  }
+
+  .multiplayer-player-name,
+  .room-code-input,
+  .create-room-btn,
+  .join-room-btn {
+    width: min(50vw, 260px);
+    height: 31px;
+    margin: 0;
+    font-size: 13px;
+  }
+
+  .multiplayer-control-side-select {
+    width: min(50vw, 280px);
+    padding: 6px;
+  }
+
+  .multiplayer-control-side-select p {
+    margin: 0 0 5px;
+    font-size: 12px;
+  }
+
+  .control-side-btn {
+    width: 68px;
+    height: 28px;
+    font-size: 12px;
+  }
+
+  .room-info {
+    position: absolute;
+    inset: 0;
+    width: min(54vw, 330px);
+    height: fit-content;
+    margin: auto;
+    padding: 12px 10px;
+    background: #f5f5f5;
+    z-index: 120;
+    box-shadow: 5px 5px 0 #111;
+  }
+
+  .room-info p {
+    font-size: 12px;
+  }
+
+  .room-code-text {
+    font-size: 14px !important;
+  }
+
+  .multiplayer-game-area {
+    position: relative;
+    width: 100vw;
+    height: 100%;
+    margin-top: 0;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    align-items: center;
+    justify-items: center;
+  }
+
+  .multiplayer-game-area.controls-right {
+    padding-left: 6px;
+    padding-right: 118px;
+  }
+
+  .multiplayer-game-area.controls-left {
+    padding-left: 118px;
+    padding-right: 6px;
+  }
+
+  #multiplayer-board {
+    width: min(calc(100vw - 140px), calc((100dvh - 64px) * 1.5), 620px);
+    height: auto;
+    aspect-ratio: 3 / 2;
+    max-height: calc(100dvh - 64px);
+    margin: 0;
+  }
+
+  .multiplayer-scoreboard {
+    width: min(calc(100vw - 140px), calc((100dvh - 64px) * 1.5), 620px);
+    margin-top: 2px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .multiplayer-scoreboard p {
+    font-size: 11px;
+  }
+
+  .multiplayer-controls {
+    display: grid !important;
+    position: absolute;
+    top: 50%;
+    width: 104px;
+    margin: 0;
+    transform: translateY(-50%);
+    z-index: 90;
+  }
+
+  .multiplayer-controls.control-left {
+    left: 8px;
+    right: auto;
+  }
+
+  .multiplayer-controls.control-right {
+    right: 8px;
+    left: auto;
+  }
+
+  .multiplayer-control-btn {
+    height: 22px;
+    font-size: 11px;
+  }
+
+  .multiplayer-rotate-warning {
+    display: none;
+  }
+}
+
+/* EXTRA SHORT LANDSCAPE */
+
+@media (max-height: 380px) and (orientation: landscape) {
+  .multiplayer-screen {
+    padding-top: 3px;
+    gap: 1px;
+  }
+
+  .multiplayer-screen .back-menu-btn {
+    height: 20px;
+    font-size: 9px;
+  }
+
+  .multiplayer-screen h1 {
+    font-size: 15px;
+  }
+
+  .multiplayer-panel {
+    height: calc(100dvh - 39px);
+  }
+
+  .multiplayer-game-area.controls-right {
+    padding-right: 110px;
+  }
+
+  .multiplayer-game-area.controls-left {
+    padding-left: 110px;
+  }
+
+  #multiplayer-board {
+    width: min(calc(100vw - 132px), calc((100dvh - 56px) * 1.5), 580px);
+    max-height: calc(100dvh - 56px);
+  }
+
+  .multiplayer-scoreboard {
+    width: min(calc(100vw - 132px), calc((100dvh - 56px) * 1.5), 580px);
+  }
+
+  .multiplayer-controls {
+    width: 98px;
+  }
+
+  .multiplayer-control-btn {
+    height: 21px;
+    font-size: 10px;
+  }
+}
+
+@media (max-height: 700px) {
+  #board {
+    width: min(78vw, 52vh, 525px);
+    height: min(78vw, 52vh, 525px);
+  }
+
+  .single-player-screen h1 {
+    font-size: 18px;
+    margin-top: 4px;
+  }
+
+  .skor {
+    margin: 6px 0;
+  }
+
+  .baslat {
+    height: 32px;
+  }
+
+  .control-btn {
+    height: 36px;
+  }
+
+  .controls {
+    margin-top: 8px;
+  }
+}
+@media (min-width: 700px) {
+  h1 {
+    font-size: 32px;
+  }
+
+  .skor {
+    font-size: 20px;
+  }
+
+  .controls {
+    display: none;
+  }
+}
+
+@media (min-width: 901px) {
+  .multiplayer-controls {
+    display: none;
+  }
+
+  .multiplayer-control-side-select {
+    display: none;
+  }
+}
+
+@media (max-width: 520px) {
+  .single-player-screen .back-menu-btn,
+  .pause-btn {
+    width: 96px;
+    font-size: 12px;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .multiplayer-control-side-select {
+    display: none !important;
+  }
+}
+
+.hidden {
+  display: none !important;
 }

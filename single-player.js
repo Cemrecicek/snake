@@ -31,11 +31,38 @@ var elmaY;
 
 //oyun bitim kontrol fonksiyonu
 var gameOver = false;
+var isPaused = false;
 
 //elmanın koordinatları için fonksiyon
+// elmanın yılanın üstüne çıkmaması için fonksiyon
 function placeFood() {
-  elmaX = Math.floor(Math.random() * cols) * blockSize;
-  elmaY = Math.floor(Math.random() * rows) * blockSize;
+  var newElmaX;
+  var newElmaY;
+  var isOnSnake;
+  var attempts = 0;
+  var maxAttempts = rows * cols;
+
+  do {
+    newElmaX = Math.floor(Math.random() * cols) * blockSize;
+    newElmaY = Math.floor(Math.random() * rows) * blockSize;
+
+    isOnSnake = false;
+
+    if (newElmaX === snakeX && newElmaY === snakeY) {
+      isOnSnake = true;
+    }
+
+    snakeBody.forEach(function (part) {
+      if (newElmaX === part[0] && newElmaY === part[1]) {
+        isOnSnake = true;
+      }
+    });
+
+    attempts += 1;
+  } while (isOnSnake && attempts < maxAttempts);
+
+  elmaX = newElmaX;
+  elmaY = newElmaY;
 }
 
 //Highscore
@@ -148,7 +175,7 @@ function hideGameOverModal() {
 
 function update() {
   // oyunun bitme durumunu kontrol edelim
-  if (gameOver) {
+  if (gameOver || isPaused) {
     return;
   }
 
@@ -214,6 +241,8 @@ function startGame() {
 
   // Oyunun durumunu sıfırla
   gameOver = false;
+  isPaused = false;
+  updatePauseButton();
   snakeX = blockSize * 10;
   snakeY = blockSize * 10;
   velocityX = 0;
@@ -223,6 +252,29 @@ function startGame() {
 
   placeFood();
   updateScoreBoard();
+}
+
+function updatePauseButton() {
+  var pauseButton = document.querySelector(".pause-btn");
+
+  if (!pauseButton) {
+    return;
+  }
+
+  if (isPaused) {
+    pauseButton.textContent = "Devam";
+  } else {
+    pauseButton.textContent = "Pause";
+  }
+}
+
+function togglePause() {
+  if (gameOver) {
+    return;
+  }
+
+  isPaused = !isPaused;
+  updatePauseButton();
 }
 
 //foksiyonumuz
@@ -240,6 +292,9 @@ window.onload = function () {
 
   var baslatButton = document.querySelector(".baslat");
   baslatButton.addEventListener("click", startGame);
+
+  var pauseButton = document.querySelector(".pause-btn");
+  pauseButton.addEventListener("click", togglePause);
 
   var modalRestartButton = document.querySelector(".modal-restart");
   modalRestartButton.addEventListener("click", startGame);
@@ -285,6 +340,10 @@ function changeDirection(e) {
     startGame();
     return;
   }
+  if (e.code === "KeyP") {
+  togglePause();
+  return;
+}
 
   if (e.code === "ArrowUp" || e.key === "w" || e.key === "W") {
     setDirection("up");
