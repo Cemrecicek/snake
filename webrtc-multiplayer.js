@@ -22,6 +22,8 @@ let currentRoomCode = null;
 let myRole = null;
 let roomSubscription = null;
 let iceSubscription = null;
+let roomStatusSubscription = null;
+
 let pendingIceCandidates = [];
 let p2pIntroTimer = null;
 
@@ -60,12 +62,15 @@ backMenuButtons.forEach(function (button) {
     if (currentRoomCode && myRole) {
       isLeavingP2P = true;
 
-      sendP2PMessage({
-        type: "playerLeft",
-      });
+      notifyP2PPlayerLeft();
 
       setTimeout(function () {
-        resetP2PConnectionOnly();
+        resetMultiplayerToMenu();
+
+        if (typeof showScreen === "function") {
+          showScreen("menu-screen");
+        }
+
         isLeavingP2P = false;
       }, 150);
     }
@@ -91,6 +96,13 @@ const playerTwoScoreText = document.querySelector(".player-two-score");
 const multiplayerControlButtons = document.querySelectorAll(
   ".multiplayer-control-btn",
 );
+
+const multiplayerControls = document.querySelector(".multiplayer-controls");
+
+const controlSideButtons = document.querySelectorAll(".control-side-btn");
+
+let multiplayerControlSide =
+  localStorage.getItem("multiplayerControlSide") || "right";
 
 const multiplayerRestartButton = document.querySelector(
   ".multiplayer-restart-btn",
@@ -437,6 +449,7 @@ async function joinP2PRoom() {
   p2pLog("Odaya katıldın:", roomCode);
 
   listenForIceCandidates();
+  listenForRoomStatus();
 }
 
 function listenForGuestAnswer() {
@@ -482,6 +495,11 @@ function listenForGuestAnswer() {
 }
 
 async function handleGuestAnswer(room) {
+  if (room && room.status === "left") {
+    handleP2PPlayerLeft();
+    return;
+  }
+
   if (!room || !room.guest_answer) return;
 
   p2pGuestName = room.guest_name || "Oyuncu 2";
@@ -577,6 +595,39 @@ function listenForIceCandidates() {
           await handleRemoteIceCandidate(candidate);
         }
       }
+    });
+}
+
+function listenForRoomStatus() {
+  if (!currentRoomCode) {
+    return;
+  }
+
+  if (roomStatusSubscription) {
+    p2pSupabaseClient.removeChannel(roomStatusSubscription);
+    roomStatusSubscription = null;
+  }
+
+  roomStatusSubscription = p2pSupabaseClient
+    .channel("p2p-room-status-" + currentRoomCode + "-" + myRole)
+    .on(
+      "postgres_changes",
+      {
+        event: "UPDATE",
+        schema: "public",
+        table: "p2p_rooms",
+        filter: "room_code=eq." + currentRoomCode,
+      },
+      function (payload) {
+        const room = payload.new;
+
+        if (room && room.status === "left") {
+          handleP2PPlayerLeft();
+        }
+      },
+    )
+    .subscribe(function (status) {
+      p2pLog("Room status subscription:", status);
     });
 }
 
@@ -682,8 +733,6 @@ function startP2PHostGame() {
   });
 
   publishSpectatorGameState(true);
-
-  let spectatorPublishTick = 0;
 
   p2pGameLoop = setInterval(function () {
     if (!p2pGameState || p2pGameState.gameOver) {
@@ -951,7 +1000,6 @@ function startP2PChaosPopups() {
     stopChaosPopups();
   }
 
-
   if (myRole !== "host") {
     return;
   }
@@ -1023,12 +1071,37 @@ function stopP2PChaosPopups() {
   }
 }
 
+function notifyP2PPlayerLeft() {
+  if (!currentRoomCode || !myRole) {
+    return;
+  }
+
+  if (myRole === "spectator") {
+    return;
+  }
+
+  if (dataChannel && dataChannel.readyState === "open") {
+    try {
+      sendP2PMessage({
+        type: "playerLeft",
+      });
+    } catch (error) {
+      console.error("[P2P] playerLeft gönderilemedi:", error);
+    }
+  }
+
+  p2pSupabaseClient
+    .from("p2p_rooms")
+    .update({
+      status: "left",
+    })
+    .eq("room_code", currentRoomCode);
+}
+
 function leaveP2PGame() {
   isLeavingP2P = true;
 
-  sendP2PMessage({
-    type: "playerLeft",
-  });
+  notifyP2PPlayerLeft();
 
   setTimeout(function () {
     resetMultiplayerToMenu();
@@ -1229,6 +1302,11 @@ function resetP2PConnectionOnly() {
     iceSubscription = null;
   }
 
+  if (roomStatusSubscription) {
+    p2pSupabaseClient.removeChannel(roomStatusSubscription);
+    roomStatusSubscription = null;
+  }
+
   if (dataChannel) {
     dataChannel.close();
     dataChannel = null;
@@ -1286,6 +1364,46 @@ multiplayerControlButtons.forEach(function (button) {
     sendP2PDirection(button.dataset.direction);
   });
 });
+
+function updateMultiplayerControlSide(side) {
+  if (!multiplayerControls || !multiplayerGameArea) {
+    return;
+  }
+
+  multiplayerControlSide = side;
+  localStorage.setItem("multiplayerControlSide", side);
+
+  multiplayerControls.classList.remove("control-left", "control-right");
+  multiplayerGameArea.classList.remove("controls-left", "controls-right");
+
+  if (side === "left") {
+    multiplayerControls.classList.add("control-left");
+    multiplayerGameArea.classList.add("controls-left");
+  } else {
+    multiplayerControls.classList.add("control-right");
+    multiplayerGameArea.classList.add("controls-right");
+  }
+
+  controlSideButtons.forEach(function (button) {
+    if (button.dataset.side === side) {
+      button.classList.add("active");
+    } else {
+      button.classList.remove("active");
+    }
+  });
+}
+
+function setupMultiplayerControlSide() {
+  updateMultiplayerControlSide(multiplayerControlSide);
+
+  controlSideButtons.forEach(function (button) {
+    button.addEventListener("click", function () {
+      updateMultiplayerControlSide(button.dataset.side);
+    });
+  });
+}
+
+setupMultiplayerControlSide();
 
 function sendP2PDirection(direction) {
   if (myRole === "spectator") {
@@ -1406,18 +1524,12 @@ if (multiplayerRestartButton) {
 window.resetMultiplayerToMenu = resetMultiplayerToMenu;
 
 window.addEventListener("beforeunload", function () {
-  if (
-    currentRoomCode &&
-    myRole &&
-    dataChannel &&
-    dataChannel.readyState === "open"
-  ) {
-    sendP2PMessage({
-      type: "playerLeft",
-    });
-  }
+  notifyP2PPlayerLeft();
 });
 
+window.addEventListener("pagehide", function () {
+  notifyP2PPlayerLeft();
+});
 window.P2PGame = {
   getState() {
     return {

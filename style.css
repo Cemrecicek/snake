@@ -113,6 +113,7 @@ h1 {
 .multiplayer-pause-btn,
 .create-room-btn,
 .join-room-btn,
+.watch-room-btn,
 .baslat,
 .save-score,
 .modal-restart {
@@ -155,7 +156,8 @@ h1 {
 }
 
 .create-room-btn,
-.join-room-btn {
+.join-room-btn,
+.watch-room-btn {
   width: min(80vw, 240px);
   height: 44px;
   font-size: 16px;
@@ -973,24 +975,28 @@ h1 {
 /* ROOM INFO */
 
 .room-info {
-  width: min(90vw, 360px);
-  margin-top: 12px;
+  position: absolute;
+  left: 50%;
+  top: 58%;
+  width: min(90vw, 380px);
+  margin: 0;
   padding: 12px;
+  transform: translate(-50%, -50%);
   border: 2px dashed #111;
   background: #f5f5f5;
   text-align: center;
-  box-shadow: 3px 3px 0 #111;
-  z-index: 80;
+  box-shadow: 5px 5px 0 #111;
+  z-index: 180;
 }
 
 .room-info p {
-  margin: 6px 0;
-  font-size: 15px;
+  margin: 5px 0;
+  font-size: 14px;
 }
 
 .room-code-text {
   font-weight: bold;
-  font-size: 18px !important;
+  font-size: 17px !important;
 }
 
 /* MULTIPLAYER GAME */
@@ -1308,94 +1314,95 @@ h1 {
     justify-content: center;
   }
 
-  @media (max-width: 920px) and (orientation: landscape) {
-    .compact-customize-panel,
-    .game-customize-panel {
-      width: min(50vw, 280px);
-      padding: 6px;
-    }
-
-    .game-customize-panel h2 {
-      margin-bottom: 6px;
-      font-size: 13px;
-    }
-
-    .game-customize-panel label {
-      gap: 3px;
-      margin-bottom: 5px;
-      font-size: 10px;
-    }
-
-    .game-customize-panel select {
-      height: 24px;
-      font-size: 10px;
-      padding: 2px 5px;
-    }
-
-    .pause-modal-content {
-      width: min(70vw, 320px);
-      padding: 16px 12px;
-    }
-
-    .pause-modal-content h2 {
-      font-size: 18px;
-    }
-
-    .pause-modal-content p {
-      font-size: 12px;
-    }
-
-    .single-resume-btn,
-    .multiplayer-resume-btn {
-      height: 30px;
-      font-size: 12px;
-    }
-  }
-
   .multiplayer-lobby {
-    width: min(54vw, 340px);
+    width: min(56vw, 360px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     gap: 6px;
   }
 
   .multiplayer-player-name,
   .room-code-input,
   .create-room-btn,
-  .join-room-btn {
-    width: min(50vw, 260px);
-    height: 31px;
+  .join-room-btn,
+  .watch-room-btn {
+    width: min(52vw, 330px);
+    height: 28px;
     margin: 0;
-    font-size: 13px;
-  }
-
-  .multiplayer-control-side-select {
-    width: min(50vw, 280px);
-    padding: 6px;
-  }
-
-  .multiplayer-control-side-select p {
-    margin: 0 0 5px;
     font-size: 12px;
   }
 
+  .game-customize-panel,
+  .compact-customize-panel {
+    width: min(52vw, 340px);
+    padding: 5px;
+  }
+
+  .game-customize-panel h2 {
+    display: none;
+  }
+
+  .game-customize-panel label {
+    gap: 3px;
+    margin-bottom: 4px;
+    font-size: 10px;
+  }
+
+  .game-customize-panel select {
+    height: 24px;
+    padding: 2px 5px;
+    font-size: 10px;
+  }
+
+  .multiplayer-control-side-select {
+    width: min(52vw, 330px);
+    padding: 4px;
+  }
+
+  .multiplayer-control-side-select p {
+    margin: 0 0 3px;
+    font-size: 10px;
+  }
+
+  .control-side-buttons {
+    gap: 6px;
+  }
+
   .control-side-btn {
-    width: 68px;
-    height: 28px;
+    width: 64px;
+    height: 24px;
+    font-size: 11px;
+  }
+
+  .pause-modal-content {
+    width: min(70vw, 320px);
+    padding: 16px 12px;
+  }
+
+  .pause-modal-content h2 {
+    font-size: 18px;
+  }
+
+  .pause-modal-content p {
+    font-size: 12px;
+  }
+
+  .single-resume-btn,
+  .multiplayer-resume-btn {
+    height: 30px;
     font-size: 12px;
   }
 
   .room-info {
-    position: absolute;
-    inset: 0;
-    width: min(54vw, 330px);
-    height: fit-content;
-    margin: auto;
-    padding: 12px 10px;
-    background: #f5f5f5;
-    z-index: 120;
-    box-shadow: 5px 5px 0 #111;
+    top: 52%;
+    width: min(58vw, 360px);
+    max-width: 360px;
+    padding: 10px 12px;
   }
 
   .room-info p {
+    margin: 4px 0;
     font-size: 12px;
   }
 
@@ -1494,6 +1501,21 @@ h1 {
     height: calc(100dvh - 39px);
   }
 
+  .room-info {
+    top: 54%;
+    width: min(56vw, 340px);
+    padding: 8px 10px;
+  }
+
+  .room-info p {
+    margin: 3px 0;
+    font-size: 11px;
+  }
+
+  .room-code-text {
+    font-size: 13px !important;
+  }
+
   .multiplayer-game-area.controls-right {
     padding-right: 110px;
   }
@@ -1548,6 +1570,7 @@ h1 {
     margin-top: 8px;
   }
 }
+
 @media (min-width: 700px) {
   h1 {
     font-size: 32px;
@@ -1562,13 +1585,19 @@ h1 {
   }
 }
 
-@media (min-width: 901px) {
+@media (max-width: 920px) {
+  .multiplayer-control-side-select {
+    display: block !important;
+  }
+}
+
+@media (min-width: 921px) {
   .multiplayer-controls {
     display: none;
   }
 
   .multiplayer-control-side-select {
-    display: none;
+    display: none !important;
   }
 }
 
@@ -1577,12 +1606,6 @@ h1 {
   .pause-btn {
     width: 96px;
     font-size: 12px;
-  }
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .multiplayer-control-side-select {
-    display: none !important;
   }
 }
 
