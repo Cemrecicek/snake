@@ -30,6 +30,10 @@ let isLeavingP2P = false;
 
 let p2pChaosTimer = null;
 
+let spectatorStateChannel = null;
+let lastSpectatorDbPublishAt = 0;
+let spectatorDbPublishInFlight = false;
+
 let handledIceCandidateIds = new Set();
 
 let p2pGameState = null;
@@ -149,6 +153,10 @@ function createPeerConnection() {
 
   peerConnection.onicecandidate = async function (event) {
     if (!event.candidate || !currentRoomCode || !myRole) return;
+
+    if (myRole !== "host" && myRole !== "guest") {
+      return;
+    }
 
     p2pLog("ICE candidate oluştu");
 
@@ -673,6 +681,10 @@ function startP2PHostGame() {
     gameState: p2pGameState,
   });
 
+  publishSpectatorGameState(true);
+
+  let spectatorPublishTick = 0;
+
   p2pGameLoop = setInterval(function () {
     if (!p2pGameState || p2pGameState.gameOver) {
       clearInterval(p2pGameLoop);
@@ -689,11 +701,14 @@ function startP2PHostGame() {
       gameState: p2pGameState,
     });
 
+    publishSpectatorGameState();
+
     if (p2pGameState.gameOver) {
       sendP2PMessage({
         type: "gameOver",
         gameState: p2pGameState,
       });
+      publishSpectatorGameState(true);
 
       showP2PGameOver(p2pGameState);
 
@@ -701,6 +716,85 @@ function startP2PHostGame() {
       p2pGameLoop = null;
     }
   }, 150);
+}
+function getSpectatorStateChannel() {
+  if (!currentRoomCode) {
+    return null;
+  }
+
+  if (spectatorStateChannel) {
+    return spectatorStateChannel;
+  }
+
+  spectatorStateChannel = p2pSupabaseClient.channel(
+    "p2p-spectator-" + currentRoomCode,
+    {
+      config: {
+        broadcast: {
+          self: false,
+        },
+      },
+    },
+  );
+
+  spectatorStateChannel.subscribe(function (status) {
+    p2pLog("Spectator broadcast channel status:", status);
+  });
+
+  return spectatorStateChannel;
+}
+
+async function publishSpectatorGameState(forceDbSave) {
+  if (myRole !== "host") return;
+  if (!currentRoomCode || !p2pGameState) return;
+
+  const stateSnapshot = JSON.parse(JSON.stringify(p2pGameState));
+  const status = stateSnapshot.gameOver ? "game_over" : "playing";
+
+  const channel = getSpectatorStateChannel();
+
+  if (channel) {
+    channel.send({
+      type: "broadcast",
+      event: "state",
+      payload: {
+        roomCode: currentRoomCode,
+        gameState: stateSnapshot,
+        status: status,
+      },
+    });
+  }
+
+  const now = Date.now();
+
+  if (!forceDbSave && now - lastSpectatorDbPublishAt < 2000) {
+    return;
+  }
+
+  if (spectatorDbPublishInFlight) {
+    return;
+  }
+
+  spectatorDbPublishInFlight = true;
+  lastSpectatorDbPublishAt = now;
+
+  const { error } = await p2pSupabaseClient.from("p2p_room_state").upsert(
+    {
+      room_code: currentRoomCode,
+      game_state: stateSnapshot,
+      status: status,
+      updated_at: new Date().toISOString(),
+    },
+    {
+      onConflict: "room_code",
+    },
+  );
+
+  spectatorDbPublishInFlight = false;
+
+  if (error) {
+    console.error("[P2P] İzleyici state DB publish hatası:", error);
+  }
 }
 
 function sendP2PMessage(message) {
@@ -857,8 +951,7 @@ function startP2PChaosPopups() {
     stopChaosPopups();
   }
 
-  // Sadece host popup zamanını belirler.
-  // Guest kendi kendine popup üretmez.
+
   if (myRole !== "host") {
     return;
   }
@@ -962,6 +1055,9 @@ function handleP2PPlayerLeft() {
 }
 
 function toggleP2PPause() {
+  if (myRole === "spectator") {
+    return;
+  }
   if (!multiplayerIntroFinished || !p2pGameState || p2pGameState.gameOver) {
     return;
   }
@@ -1005,6 +1101,9 @@ function handleP2PPauseChanged(paused) {
 }
 
 function requestP2PRestart() {
+  if (myRole === "spectator") {
+    return;
+  }
   if (!localPlayerKey) {
     return;
   }
@@ -1084,6 +1183,9 @@ function handleP2PRestartAccepted() {
 }
 
 function resetP2PConnectionOnly() {
+  if (window.P2PSpectator && typeof window.P2PSpectator.stop === "function") {
+    window.P2PSpectator.stop();
+  }
   stopP2PChaosPopups();
 
   if (typeof stopChaosPopups === "function") {
@@ -1137,6 +1239,14 @@ function resetP2PConnectionOnly() {
     peerConnection = null;
   }
 
+  if (spectatorStateChannel) {
+    p2pSupabaseClient.removeChannel(spectatorStateChannel);
+    spectatorStateChannel = null;
+  }
+
+  lastSpectatorDbPublishAt = 0;
+  spectatorDbPublishInFlight = false;
+
   if (multiplayerGameOverModal) {
     multiplayerGameOverModal.classList.add("hidden");
   }
@@ -1178,6 +1288,10 @@ multiplayerControlButtons.forEach(function (button) {
 });
 
 function sendP2PDirection(direction) {
+  if (myRole === "spectator") {
+    return;
+  }
+
   if (!multiplayerIntroFinished) {
     return;
   }
@@ -1303,3 +1417,77 @@ window.addEventListener("beforeunload", function () {
     });
   }
 });
+
+window.P2PGame = {
+  getState() {
+    return {
+      currentRoomCode,
+      myRole,
+      p2pGameState,
+      p2pHostName,
+      p2pGuestName,
+      p2pHostColorKey,
+      p2pGuestColorKey,
+      p2pBoardThemeKey,
+      multiplayerIntroFinished,
+    };
+  },
+
+  setRole(role) {
+    myRole = role;
+  },
+
+  setRoomCode(roomCode) {
+    currentRoomCode = roomCode;
+  },
+
+  setGameState(gameState) {
+    p2pGameState = gameState;
+  },
+
+  setSpectatorName(name) {
+    window.p2pSpectatorName = name;
+  },
+
+  drawGame(gameState) {
+    drawP2PGame(gameState);
+  },
+
+  drawWaiting() {
+    drawP2PWaitingScreen();
+  },
+
+  showGameOver(gameState) {
+    showP2PGameOver(gameState);
+  },
+
+  resetConnectionOnly() {
+    resetP2PConnectionOnly();
+  },
+
+  resetToMenu() {
+    resetMultiplayerToMenu();
+  },
+
+  setRoomMessage(message) {
+    setRoomMessage(message);
+  },
+
+  getSupabaseClient() {
+    return p2pSupabaseClient;
+  },
+
+  getElements() {
+    return {
+      roomCodeInput,
+      multiplayerPlayerNameInput,
+      multiplayerLobby,
+      multiplayerGameArea,
+      multiplayerPauseButton,
+      roomInfo,
+      roomCodeText,
+      playerCountText,
+      roomMessageText,
+    };
+  },
+};
