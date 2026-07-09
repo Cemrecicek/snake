@@ -161,12 +161,28 @@ function showMultiplayerGameArea() {
   multiplayerPauseButton.classList.remove("hidden");
   multiplayerPauseButton.textContent = "Pause";
 
+  console.log("[MULTI] Oyun alanı açıldı, chaos popup başlatılıyor");
+
+  if (typeof stopChaosPopups === "function") {
+    stopChaosPopups();
+  }
+
+  if (typeof scheduleNextChaosPopup === "function") {
+    scheduleNextChaosPopup();
+  } else {
+    console.log("[MULTI] scheduleNextChaosPopup bulunamadı!");
+  }
+
   if (latestGameState) {
     drawMultiplayerGame(latestGameState);
   }
 }
 
 function showMultiplayerGameOverModal(data) {
+  if (typeof stopChaosPopups === "function") {
+    stopChaosPopups();
+  }
+
   multiplayerPauseButton.classList.add("hidden");
 
   multiplayerWinnerText.textContent = "Kazanan: " + data.winner;
@@ -442,6 +458,10 @@ socket.on("restartVoteStatus", function (data) {
 socket.on("restartAccepted", function () {
   hideMultiplayerGameOverModal();
 
+  if (typeof stopChaosPopups === "function") {
+    stopChaosPopups();
+  }
+
   multiplayerIntroFinished = false;
   latestGameState = null;
 });
@@ -507,6 +527,10 @@ if (multiplayerResumeButton) {
 }
 
 function resetMultiplayerToMenu() {
+  if (typeof stopChaosPopups === "function") {
+    stopChaosPopups();
+  }
+
   if (currentRoomCode) {
     socket.emit("leaveRoom", {
       roomCode: currentRoomCode,

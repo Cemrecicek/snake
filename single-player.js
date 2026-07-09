@@ -21,6 +21,10 @@ var velocityY = 0;
 
 var snakeBody = [];
 
+let singleGameInterval = null;
+let normalGameSpeed = 10;
+let currentGameSpeed = normalGameSpeed;
+
 var count = 0;
 var highScore = 0;
 
@@ -86,6 +90,27 @@ function placeFood() {
   elmaX = newElmaX;
   elmaY = newElmaY;
 }
+
+function restartSingleGameLoop(speed) {
+  currentGameSpeed = speed;
+
+  if (singleGameInterval) {
+    clearInterval(singleGameInterval);
+  }
+
+  singleGameInterval = setInterval(update, 1000 / currentGameSpeed);
+}
+
+function slowDownSingleSnake() {
+  restartSingleGameLoop(4); // popup varken yavaş hız
+}
+
+function restoreSingleSnakeSpeed() {
+  restartSingleGameLoop(normalGameSpeed); // normal hız
+}
+
+window.slowDownSingleSnake = slowDownSingleSnake;
+window.restoreSingleSnakeSpeed = restoreSingleSnakeSpeed;
 
 //Highscore
 function updateScoreBoard() {
@@ -266,6 +291,7 @@ function update() {
     snakeY >= rows * blockSize
   ) {
     gameOver = true;
+    stopChaosPopups();
     showGameOverModal();
     return;
   }
@@ -297,6 +323,9 @@ function startGame() {
 
   placeFood();
   updateScoreBoard();
+
+  stopChaosPopups();
+  scheduleNextChaosPopup();
 }
 
 function updatePauseButton() {
@@ -340,6 +369,8 @@ function showSinglePlayerSetup() {
 
   gameOver = true;
   isPaused = false;
+
+  stopChaosPopups();
 
   if (setupPanel) {
     setupPanel.classList.remove("hidden");
@@ -497,7 +528,7 @@ window.onload = function () {
     });
   });
 
-  setInterval(update, 1000 / 10);
+  restartSingleGameLoop(normalGameSpeed);
 };
 
 function changeDirection(e) {
